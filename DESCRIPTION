@@ -1,0 +1,27 @@
+Package: scclusteval
+Title: Evaluate the single cell clustering 
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Ming",
+           family = "Tang",
+           role = c("aut", "cre"),
+           email = "tangming2005@gmail.com")
+Description: What the package does (one paragraph).
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 6.1.1
+Imports: 
+    dplyr,
+    purrr,
+    tidyr,
+    magrittr,
+    fpc,
+    RANN,
+    Seurat
+Suggests: 
+    spelling
+Language: en-US
+URL: https://github.com/crazyhottommy/scclusteval
+BugReports: https://github.com/crazyhottommy/scclusteval/issues
