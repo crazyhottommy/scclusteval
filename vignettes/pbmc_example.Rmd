@@ -1,0 +1,193 @@
+---
+title: "walk through scclusteval using pbmc data"
+author: "Ming Tang"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{walk through scclusteval using pbmc data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r}
+library(Seurat)
+library(dplyr)
+
+# Load the PBMC dataset
+pbmc.data <- Read10X(data.dir = "~/Downloads/filtered_gene_bc_matrices/hg19/")
+
+pbmc <- CreateSeuratObject(raw.data = pbmc.data, min.cells = 3, min.genes = 200, 
+    project = "10X_PBMC")
+
+pbmc2 <- CreateSeuratObject(raw.data = pbmc.data, min.cells = 3, min.genes = 200, 
+    project = "10X_PBMC")
+
+mito.genes <- grep(pattern = "^MT-", x = rownames(x = pbmc@data), value = TRUE)
+percent.mito <- Matrix::colSums(pbmc@raw.data[mito.genes, ])/Matrix::colSums(pbmc@raw.data)
+
+# AddMetaData adds columns to object@meta.data, and is a great place to
+# stash QC stats
+pbmc <- AddMetaData(object = pbmc, metadata = percent.mito, col.name = "percent.mito")
+
+pbmc <- NormalizeData(object = pbmc, normalization.method = "LogNormalize", 
+    scale.factor = 10000)
+
+pbmc <- FindVariableGenes(object = pbmc, mean.function = ExpMean, dispersion.function = LogVMR, 
+    x.low.cutoff = 0.0125, x.high.cutoff = 3, y.cutoff = 0.5)
+
+pbmc <- ScaleData(object = pbmc, vars.to.regress = c("nUMI", "percent.mito"))
+
+pbmc <- RunPCA(object = pbmc, pc.genes = pbmc@var.genes, do.print = TRUE, pcs.print = 1:5, 
+    genes.print = 5, pcs.compute = 100)
+
+# this step takes long time.
+# the Seurat tutorial uses 20 PCs. for large data sets, we sometimes use 85 PCs, 
+# I set 100 here for example.
+pbmc <- JackStraw(object = pbmc, num.pc = 100,  num.replicate = 100, display.progress = T, 
+                  do.par = T, num.cores = 6)
+
+pbmc@dr$pca@jackstraw@overall.p.values
+## default threshold is 1e-5, keep that.keep the first 100 PCs's pvalue.
+pbmc<- JackStrawPlot(object = pbmc, PCs = 1:100, score.thresh = 1e-5)
+
+JackStrawPlot(pbmc, PCs=1:10)
+pc.use<- 10
+
+pbmc <- FindClusters(object = pbmc, reduction.type = "pca", dims.use = 1:pc.use, 
+    resolution = 0.6, print.output = FALSE, save.SNN = TRUE)
+
+pbmc@ident
+
+
+pbmc <- RunTSNE(object = pbmc, dims.use = 1:pc.use, do.fast = TRUE)
+
+pbmc_sub1<- RandomSubsetData(pbmc, rate = 0.8)
+pbmc_sub1<- PreprocessSubsetData(pbmc_sub1, x.low.cutoff = 0.0125, x.high.cutoff = 3, y.cutoff = 0.5,
+                             resolution = 0.6, num.pc = 20)
+
+pbmc_sub2<- RandomSubsetData(pbmc, rate = 0.8)
+pbmc_sub2<- PreprocessSubsetData(pbmc_sub2, x.low.cutoff = 0.0125, x.high.cutoff = 3, y.cutoff = 0.5,
+                             resolution = 0.6, num.pc = 20)
+
+
+pbmc_sub3<- RandomSubsetData(pbmc, rate = 0.8)
+pbmc_sub3<- PreprocessSubsetData(pbmc_sub3, x.low.cutoff = 0.0125, x.high.cutoff = 3, y.cutoff = 0.5,
+                             resolution = 0.6, num.pc = 20)
+
+
+(pbmc@ident == 1) %>% table()
+
+orignal_cluster0<- names(pbmc@ident[pbmc@ident == 0])
+
+sub1_cluster0<- names(pbmc_sub1@ident[pbmc_sub1@ident == 0])
+sub1_cluster1<- names(pbmc_sub1@ident[pbmc_sub1@ident == 1])
+sub1_cluster2<- names(pbmc_sub1@ident[pbmc_sub1@ident == 2])
+sub1_cluster3<- names(pbmc_sub1@ident[pbmc_sub1@ident == 3])
+
+dist(orignal_cluster0, sub1_cluster0, method = "binary")
+
+bayesbio::jaccardSets(orignal_cluster0, sub1_cluster0)
+length(intersect(orignal_cluster0, sub1_cluster0))/length(unique(c(orignal_cluster0, sub1_cluster0)))
+
+
+total_cluster_ids<- length(unique(pbmc_sub1@ident))
+levels(pbmc_sub1@ident)
+
+pbmc_sub1@ident == 1
+pbmc_sub1@meta.data %>% tibble::rownames_to_column(var = "cell_id") %>% select(cell_id, res.0.6)
+dat<- tibble(cell_id = names(pbmc_sub1@ident) , cluster = pbmc_sub1@ident) %>%
+  tidyr::nest(-cluster) %>% 
+  arrange(cluster)
+
+dat %>% 
+  mutate(jaccard = purrr::map(data, ~JaccardSets(orignal_cluster0, .x$cell_id))) %>% 
+  pull(jaccard) %>% unlist() %>% max()
+
+pbmc@ident == 3
+levels(pbmc@ident)
+pbmc@meta.data$res.0.6 %>% head()
+pbmc_sub1@ident
+
+boot_test<- scClusterBoot(object = pbmc, n =3, rate = 0.8,  x.low.cutoff = 0.0125, 
+                          x.high.cutoff = 3, y.cutoff = 0.5,resolution = 0.6, 
+                          num.pc = 20, num.cores = 8)
+
+boot_clusters<- purrr:::map(boot_test, "ident")
+
+## total 8 clusters in the original data set
+pbmc@ident %>% unique() %>% length()
+
+# for loops are slow.
+
+TurnIdentToDf<- function(ident){
+  dat<- tibble(cell.id = names(ident) , cluster = ident) %>%
+  tidyr::nest(-cluster) %>% 
+  arrange(cluster)
+  return(dat)
+}
+
+TurnIdentToDf(boot_clusters[[1]])
+TurnIdentToDf(pbmc@ident)$data[[1]]
+
+boot_clusters_df<- purrr::map(boot_clusters, TurnIdentToDf)
+
+
+boot_clusters_df[[3]] %>%
+  mutate(jaccard = purrr::map_dbl(data, ~JaccardSets(TurnIdentToDf(pbmc@ident)$data[[1]]$cell.id, .x$cell.id))) 
+
+boot_clusters_df[[3]] %>%
+  mutate(jaccard = purrr::map_dbl(data, ~JaccardSets(TurnIdentToDf(pbmc@ident)$data[[2]]$cell.id, .x$cell.id))) 
+
+boot_clusters_df[[3]] %>%
+  mutate(jaccard = purrr::map_dbl(data, ~JaccardSets(TurnIdentToDf(pbmc@ident)$data[[3]]$cell.id, .x$cell.id)))
+
+boot_clusters_df[[3]] %>%
+  mutate(jaccard = purrr::map_dbl(data, ~JaccardSets(TurnIdentToDf(pbmc@ident)$data[[4]]$cell.id, .x$cell.id)))
+
+boot_clusters_df[[3]] %>%
+  mutate(jaccard = purrr::map_dbl(data, ~JaccardSets(TurnIdentToDf(pbmc@ident)$data[[5]]$cell.id, .x$cell.id)))
+
+
+boot_clusters_df[[3]] %>%
+  mutate(jaccard = purrr::map_dbl(data, ~JaccardSets(TurnIdentToDf(pbmc@ident)$data[[6]]$cell.id, .x$cell.id)))
+
+
+split(names(boot_clusters[[1]]), boot_clusters[[1]]) %>% lapply(length)
+
+## split the cells by cluster
+SplitIdentByCluster<- function(ident){
+  split(names(ident), ident)
+}
+
+SplitIndentByCluster(pbmc@ident)
+
+ManyToManyJaccardSets<- function(ident1.list, ident2.list){
+  res<- c()
+  for (i in seq_along(ident1.list)){
+    ind<- purrr::map_dbl(ident2.list, ~JaccardSets(ident1.list[[i]], .x))
+    res<- rbind(res, ind)
+  }
+  rownames(res)<- names(ident1.list)
+  return(res)
+}
+
+mat<- ManyToManyJaccardSets(SplitIdentByCluster(pbmc@ident), SplitIdentByCluster(boot_clusters[[2]])) 
+mat<- ManyToManyJaccardSets(ident1.list, ident2.list)
+library(ComplexHeatmap)
+
+Heatmap(mat, cluster_rows = F, cluster_columns = F)
+ident1.list<- SplitIdentByCluster(pbmc@ident)
+ident2.list<- SplitIdentByCluster(boot_clusters[[3]])
+
+id1<- purrr::map_dbl(ident2.list, ~JaccardSets(ident1.list[[1]], .x)) 
+id2<-  purrr::map_dbl(ident2.list, ~JaccardSets(ident1.list[[2]], .x))
+
+sum(ident1.list$`7` %in% unlist(ident2.list))
+
+lapply( ident2.list, function(x) sum(ident1.list$`6` %in% x))
+lapply(ident2.list, length)
+```
+
+
+

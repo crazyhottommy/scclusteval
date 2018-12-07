@@ -4,24 +4,43 @@
 \alias{PreprocessSubsetData}
 \title{A wrapper for preprocessing subsetted Seurat object}
 \usage{
-PreprocessSubsetData(object, mean.function = ExpMean,
-  dispersion.function = logVMR, x.low.cutoff = 0.05,
-  x.high.cutoff = 10, y.cutoff = 0.5, ...)
+PreprocessSubsetData(object, x.low.cutoff = 0.05, x.high.cutoff = 10,
+  y.cutoff = 0.5, num.pc = 20, do.par = TRUE, num.cores = 2,
+  score.thresh = 1e-05, n.start = 100, nn.eps = 0,
+  resolution = 0.8, k.param = 30, ...)
 }
 \arguments{
 \item{object}{A subsetted Seurat object created by RandomSubsetData}
-
-\item{mean.function}{Function to compute x-axis value (average expression).
-Default is to take the mean of the detected (i.e. non-zero) values}
-
-\item{dispersion.function}{Function to compute y-axis value (dispersion).
-Default is to take the standard deviation of all values}
 
 \item{x.low.cutoff}{Bottom cutoff on x-axis for identifying variable genes}
 
 \item{x.high.cutoff}{Top cutoff on x-axis for identifying variable genes}
 
 \item{y.cutoff}{Bottom cutoff on y-axis for identifying variable genes}
+
+\item{num.pc}{number of PCs to calculate in RunPCA, JackStraw and JackStrawPlot
+step. The optimal PCs for FindClusters will be determined by only significant PCs
+from JackStrawPlot.}
+
+\item{do.par}{use parallel processing for regressing out variables faster.
+If set to TRUE, will use half of the machines available cores. see JackStraw.}
+
+\item{num.cores}{If do.par = TRUE, specify the number of cores to use.
+Note that for higher number of cores, larger free memory is needed.
+If num.cores = 1 and do.par = TRUE, num.cores will be set to half of all
+available cores on the machine. see JackStraw.}
+
+\item{score.thresh}{Threshold to use for the proportion test of PC significance}
+
+\item{n.start}{Number of random start.}
+
+\item{nn.eps}{Error bound when performing nearest neighbor seach using RANN;
+default of 0.0 implies exact nearest neighbor search. See FindClusters.}
+
+\item{resolution}{Value of the resolution parameter, use a value above (below)
+1.0 if you want to obtain a larger (smaller) number of communities. see FIndClusters.}
+
+\item{k.param}{Defines k for the k-nearest neighbor algorithm.}
 
 \item{...}{any other parameters for FindVariableGenes}
 }

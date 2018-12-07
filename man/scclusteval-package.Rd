@@ -8,6 +8,14 @@
 \description{
 What the package does (one paragraph).
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/crazyhottommy/scclusteval}
+  \item Report bugs at \url{https://github.com/crazyhottommy/scclusteval/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Ming Tang \email{tangming2005@gmail.com}
 

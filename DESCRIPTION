@@ -17,11 +17,15 @@ Imports:
     purrr,
     tidyr,
     magrittr,
-    fpc,
-    RANN,
-    Seurat
+    BiocParallel,
+    future.apply
 Suggests: 
-    spelling
+    spelling,
+    knitr,
+    rmarkdown
 Language: en-US
 URL: https://github.com/crazyhottommy/scclusteval
 BugReports: https://github.com/crazyhottommy/scclusteval/issues
+VignetteBuilder: knitr
+Depends: 
+    Seurat

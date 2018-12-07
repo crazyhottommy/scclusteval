@@ -4,14 +4,15 @@
 \alias{RandomSubsetData}
 \title{Randomly subset (cells) seurat object by a rate}
 \usage{
-RandomSubsetData(object, rate, random.seed = 1, do.clean = TRUE, ...)
+RandomSubsetData(object, rate, random.subset.seed = NULL,
+  do.clean = TRUE, ...)
 }
 \arguments{
 \item{object}{Seurat object}
 
 \item{rate}{a number betwee 0-1 for subsetting}
 
-\item{random.seed}{set a random seed for sampling, default is 1.}
+\item{random.subset.seed}{set a random seed for sampling, default is NULL.}
 
 \item{do.clean}{subset the seurat object in a clean way, include the raw.data}
 
@@ -27,5 +28,6 @@ Randomly subset (cells) seurat object by a rate
 pbmc_small
 pbmc_small_subset<- RandomSubsetData(pbmc_small, 0.8)
 dim(pbmc_small_subset@meta.data)
+
 
 }
