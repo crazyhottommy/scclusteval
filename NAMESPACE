@@ -2,8 +2,9 @@
 
 export("%>%")
 export(JaccardSets)
-export(ManyToManyJaccardSets)
 export(MergeMultipleSeuratObjects)
+export(PairWiseJaccardSets)
+export(PairWiseJaccardSetsHeatmap)
 export(PreprocessSubsetData)
 export(RandomSubsetData)
 export(scClusterBoot)

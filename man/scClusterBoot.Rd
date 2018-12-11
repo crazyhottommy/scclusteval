@@ -4,15 +4,12 @@
 \alias{scClusterBoot}
 \title{Bootstrap for a fully processed Seurat object}
 \usage{
-scClusterBoot(object, n = 4, workers = 4, rate = 0.8, ...)
+scClusterBoot(object, n = 4, rate = 0.8, ...)
 }
 \arguments{
 \item{object}{A fully processed Seurat object.}
 
 \item{n}{Number of times you want to bootstrap.}
-
-\item{workers}{integer(1) Number of workers.
-see \code{\link[BiocParallel]{MulticoreParam}}.}
 
 \item{rate}{A number between 0 and 1 for subsampling the cells.}
 

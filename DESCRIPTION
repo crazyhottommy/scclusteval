@@ -1,7 +1,7 @@
 Package: scclusteval
 Title: Evaluate the single cell clustering 
 Version: 0.0.0.9000
-Authors@R: 
+Authors@R:
     person(given = "Ming",
            family = "Tang",
            role = c("aut", "cre"),
@@ -12,14 +12,15 @@ Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.1
-Imports: 
+Imports:
     dplyr,
     purrr,
     tidyr,
     magrittr,
     BiocParallel,
-    future.apply
-Suggests: 
+    future.apply,
+    ComplexHeatmap
+Suggests:
     spelling,
     knitr,
     rmarkdown
@@ -27,5 +28,5 @@ Language: en-US
 URL: https://github.com/crazyhottommy/scclusteval
 BugReports: https://github.com/crazyhottommy/scclusteval/issues
 VignetteBuilder: knitr
-Depends: 
+Depends:
     Seurat

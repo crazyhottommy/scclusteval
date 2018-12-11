@@ -162,7 +162,7 @@ SplitIdentByCluster<- function(ident){
 
 SplitIndentByCluster(pbmc@ident)
 
-ManyToManyJaccardSets<- function(ident1.list, ident2.list){
+PairWiseJaccardSets<- function(ident1.list, ident2.list){
   res<- c()
   for (i in seq_along(ident1.list)){
     ind<- purrr::map_dbl(ident2.list, ~JaccardSets(ident1.list[[i]], .x))
@@ -172,11 +172,13 @@ ManyToManyJaccardSets<- function(ident1.list, ident2.list){
   return(res)
 }
 
-mat<- ManyToManyJaccardSets(SplitIdentByCluster(pbmc@ident), SplitIdentByCluster(boot_clusters[[2]])) 
-mat<- ManyToManyJaccardSets(ident1.list, ident2.list)
+mat<- PairWiseJaccardSets(SplitIdentByCluster(pbmc@ident), SplitIdentByCluster(boot_clusters[[2]])) 
+mat<- PairWiseJaccardSets(ident1.list, ident2.list)
 library(ComplexHeatmap)
 
 Heatmap(mat, cluster_rows = F, cluster_columns = F)
+
+
 ident1.list<- SplitIdentByCluster(pbmc@ident)
 ident2.list<- SplitIdentByCluster(boot_clusters[[3]])
 
@@ -187,6 +189,9 @@ sum(ident1.list$`7` %in% unlist(ident2.list))
 
 lapply( ident2.list, function(x) sum(ident1.list$`6` %in% x))
 lapply(ident2.list, length)
+
+
+
 ```
 
 

@@ -30,10 +30,10 @@ JaccardSets<- function(set1, set2){
 #' @export
 #'
 #' @examples
-#' ManyToManyJaccardSets(pbmc@ident, pbmc_small@ident)
+#' PairWiseJaccardSets(pbmc@ident, pbmc_small@ident)
 #'
 #'
-ManyToManyJaccardSets<- function(ident1, ident2){
+PairWiseJaccardSets<- function(ident1, ident2){
         ident1.list<- split(names(ident1), ident1)
         ident2.list<- split(names(ident2), ident2)
         res<- c()
@@ -48,8 +48,6 @@ ManyToManyJaccardSets<- function(ident1, ident2){
 #'
 #' @param object A fully processed Seurat object.
 #' @param n  Number of times you want to bootstrap.
-#' @param workers integer(1) Number of workers.
-#' see \code{\link[BiocParallel]{MulticoreParam}}.
 #' @param rate A number between 0 and 1 for subsampling the cells.
 #' @param ... Other parameters passed to \code{\link{PreprocessSubsetData}}
 #'
@@ -89,7 +87,7 @@ ManyToManyJaccardSets<- function(ident1, ident2){
 #         return(boot_clusters)
 # }
 
-scClusterBoot<- function(object, n = 4, workers = 4, rate = 0.8, ...){
+scClusterBoot<- function(object, n = 4, rate = 0.8, ...){
         # the parameter n is not used inside the function
         GetProcessedSubsetDataCluster<- function(n, ...){
                 object<- RandomSubsetData(object, rate = rate)
