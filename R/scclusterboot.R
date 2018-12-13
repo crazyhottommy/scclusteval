@@ -44,6 +44,25 @@ PairWiseJaccardSets<- function(ident1, ident2){
         rownames(res)<- names(ident1.list)
         return(res)
 }
+
+
+#' Select Highest Jaccard to match clusters
+#'
+#'
+#' @param mat This matrix is returned by \code{\link{PairWiseJaccardSets}}
+#'
+#' @return A named number of Jaccard distance with names of the original cluster id
+#' in the original unsubsetted seurat object.
+#'
+#' @export
+#'
+#' @examples
+SelectHighestJaccard<- function(mat){
+        apply(mat, 1, max)
+
+}
+
+
 #' Bootstrap for a fully processed Seurat object
 #'
 #' @param object A fully processed Seurat object.

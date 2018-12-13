@@ -37,3 +37,36 @@ PairWiseJaccardSetsHeatmap<- function(mat, title = NULL, col_low = "white", col_
 }
 
 
+#' Plot the Jaccard index distribution using raincloud plot
+#'
+#' @param ident1 The cluster identity from the original full data set.
+#' @param idents A list of cluster identity from the subsampled data sets.
+#' @param title Title of the plot
+#'
+#' @return A ggplot2 object
+#' @export
+#'
+#' @examples
+#'
+#'\dontrun{
+#'data(idents)
+#'## the pbmc here need to be fully processed.
+#'JaccardRainCloudPlot(pbmc@@ident, idents)
+#'}
+#'
+JaccardRainCloudPlot<- function(ident1, idents, title= NULL){
+        mat_list<- purrr::map(idents, ~PairWiseJaccardSets(ident1 = ident1, ident2 = .x))
+        mat_max<- purrr::map(mat_list, SelectHighestJaccard)
+        mats<- purrr::reduce(mat_max, bind_rows)
+
+        g<- mats %>% as_tibble() %>% tibble::rownames_to_column(var = "bootstrap")  %>%
+                tidyr::gather(-bootstrap, key= "cluster", value = "jaccard") %>%
+                ggplot(aes(x = cluster, y = jaccard, fill = cluster)) +
+                geom_flat_violin(position = position_nudge(x = .2, y = 0), alpha = .8) +
+                geom_point(aes(y = jaccard, color = cluster), position = position_jitter(width = .15), size = .5, alpha = 0.8) +
+                geom_boxplot(width = .1, guides = FALSE, outlier.shape = NA, alpha = 0.5) +
+                theme(legend.position="none") +
+                ggtitle(title)
+        return(g)
+}
+
