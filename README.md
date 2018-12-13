@@ -68,13 +68,14 @@ be considered unstable. Values between 0.6 and 0.75 indicate that the
 cluster is measuring a pattern in the data, but there isn’t high
 certainty about which points should be clustered together. Clusters with
 stability values above about 0.85 can be considered highly stable
-(they’re likely to be real clusters). \#\# Installation
+(they’re likely to be real clusters).
 
-You can install the released version of scclusteval from
-[CRAN](https://CRAN.R-project.org) with:
+## Installation
+
+You can install the scclusteval from github:
 
 ``` r
-install.packages("scclusteval")
+devtools::install_github("crazyhottommy/scclusteval")
 ```
 
 ## Example
@@ -113,12 +114,12 @@ files, so they display on GitHub\!
 
 Thanks to Tim Sackton and Catherin Dulac for their supervision and
 support.  
-Thanks to Yasin Kaymaz in Sackton group for fruitful discussion. Thanks
-to Stephen Eichhorn in Xiaowei Zhuang lab for the idea and sharing the
-python code working on [Scanpy](https://github.com/theislab/scanpy)
-object.  
-Thanks to Sophia(Zhengzheng) Liang in Dulac lab for initial sharing
-data.
+Thanks to Yasin Kaymaz in Sackton group for fruitful discussion.  
+Thanks to Stephen Eichhorn in Xiaowei Zhuang lab for the idea and
+sharing the python code working on
+[Scanpy](https://github.com/theislab/scanpy) object.  
+Thanks to Sophia(Zhengzheng) Liang in Dulac lab for sharing data and
+giving feedbacks.
 
 ## Why this package?
 
