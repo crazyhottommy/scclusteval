@@ -191,6 +191,34 @@ lapply( ident2.list, function(x) sum(ident1.list$`6` %in% x))
 lapply(ident2.list, length)
 
 
+load("~/gather_bootstrap_cluster.rda")
+PairWiseJaccardSets(pbmc@ident, idents[[3]])
+
+
+### put in function 
+mat_list<- purrr::map(idents, ~PairWiseJaccardSets(ident1 = pbmc@ident, ident2 = .x))
+
+mat_max<- purrr::map(mat_list, SelectHighestJaccard)
+
+mats<- purrr::reduce(mat_max, bind_rows)
+
+mats %>% as_tibble() %>% tibble::rownames_to_column(var = "bootstrap")  %>%
+  tidyr::gather(-bootstrap, key= "cluster", value = "jaccard") %>% 
+  ggplot(aes(x = cluster, y = jaccard)) + 
+  geom_point() + 
+  geom_boxplot(aes(col = cluster))
+  
+source("https://gist.githubusercontent.com/benmarwick/2a1bb0133ff568cbe28d/raw/fb53bd97121f7f9ce947837ef1a4c65a73bffb3f/geom_flat_violin.R")
+  
+mats %>% as_tibble() %>% tibble::rownames_to_column(var = "bootstrap")  %>%
+  tidyr::gather(-bootstrap, key= "cluster", value = "jaccard") %>% 
+  ggplot(aes(x = cluster, y = jaccard, fill = cluster)) + 
+  geom_flat_violin(position = position_nudge(x = .2, y = 0), alpha = .8) +
+  geom_point(aes(y = jaccard, color = cluster), position = position_jitter(width = .15), size = .5, alpha = 0.8) +
+  geom_boxplot(width = .1, guides = FALSE, outlier.shape = NA, alpha = 0.5) +
+  theme(legend.position="none")
+
+
 
 ```
 

@@ -5,15 +5,22 @@
 \title{Make a Heatmap of the pairwise Jaccard distance between cluster ident of two
 Seurat object}
 \usage{
-PairWiseJaccardSetsHeatmap(mat, col_low = "white", col_high = "red")
+PairWiseJaccardSetsHeatmap(mat, title = NULL, col_low = "white",
+  col_high = "red", show_row_dend = T, show_column_dent = T)
 }
 \arguments{
 \item{mat}{The pairwise Jaccard distance matrix returned by
 \code{\link{PairWiseJaccardSets}}}
 
+\item{title}{The title of the heatmap}
+
 \item{col_low}{Color for low Jaccard index.}
 
 \item{col_high}{Color for high Jaccard index.}
+
+\item{show_row_dend}{Whether or not show row dendrogram}
+
+\item{show_column_dent}{Whether or not show column dendrogram}
 }
 \value{
 A Heatmap representing the pair-wise Jaccard correlation
