@@ -138,7 +138,8 @@ names(ks_idents_original)<- c("k20", "k25", "k30", "k35")
 ``` r
 ## cluster7 and cluster 8 from k20 is the same cluster7 from k25
 PairWiseJaccardSetsHeatmap(PairWiseJaccardSets(k_20_seurat@ident, k_25_seurat@ident),
-                           show_row_dend = F, show_column_dend = F)
+                           show_row_dend = F, show_column_dend = F,
+                           cluster_row = F, cluster_column =F)
 ```
 
 <img src="man/figures/README-unnamed-chunk-2-1.png" width="60%" height="60%" />
