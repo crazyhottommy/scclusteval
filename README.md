@@ -264,3 +264,8 @@ fpc package `clusterboot`.
 
 read this blog post
 <http://www.win-vector.com/blog/2015/09/bootstrap-evaluation-of-clusters/>
+
+## To do list
+
+  - impurity metric for assessing cluster stability
+  - plot number of clusters in each iteration.
