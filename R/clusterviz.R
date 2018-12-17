@@ -16,10 +16,10 @@
 #' @examples
 #'
 PairWiseJaccardSetsHeatmap<- function(mat, title = NULL, col_low = "white", col_high= "red",
-                                      show_row_dend = T, show_column_dent = T){
+                                      show_row_dend = T, show_column_dend = T){
         cell_fun = function(j, i, x, y, width, height, fill) {
-                grid.rect(x = x, y = y, width = width *0.99, height = height *0.99,
-                          gp = gpar(col = "grey", fill = fill, lty = 1, lwd = 0.5))
+                grid::grid.rect(x = x, y = y, width = width *0.99, height = height *0.99,
+                          gp = grid::gpar(col = "grey", fill = fill, lty = 1, lwd = 0.5))
         }
 
         col_fun<- circlize::colorRamp2(c(0, 1), c(col_low, col_high))
@@ -27,7 +27,7 @@ PairWiseJaccardSetsHeatmap<- function(mat, title = NULL, col_low = "white", col_
                                 show_row_names = T, show_column_names = T,
                                 show_row_dend = show_row_dend,
                                 show_column_dend = show_column_dend,
-                                col = col_fun, rect_gp = gpar(type = "none"),
+                                col = col_fun, rect_gp = grid::gpar(type = "none"),
                                 cell_fun = cell_fun,
                                 name = "Jaccard distance",
                                 column_title = title,
@@ -57,16 +57,45 @@ PairWiseJaccardSetsHeatmap<- function(mat, title = NULL, col_low = "white", col_
 JaccardRainCloudPlot<- function(ident1, idents, title= NULL){
         mat_list<- purrr::map(idents, ~PairWiseJaccardSets(ident1 = ident1, ident2 = .x))
         mat_max<- purrr::map(mat_list, SelectHighestJaccard)
-        mats<- purrr::reduce(mat_max, bind_rows)
+        mats<- purrr::reduce(mat_max, dplyr::bind_rows)
 
-        g<- mats %>% as_tibble() %>% tibble::rownames_to_column(var = "bootstrap")  %>%
+        g<- mats %>% tibble::as_tibble() %>% tibble::rownames_to_column(var = "bootstrap")  %>%
                 tidyr::gather(-bootstrap, key= "cluster", value = "jaccard") %>%
                 ggplot(aes(x = cluster, y = jaccard, fill = cluster)) +
                 geom_flat_violin(position = position_nudge(x = .2, y = 0), alpha = .8) +
                 geom_point(aes(y = jaccard, color = cluster), position = position_jitter(width = .15), size = .5, alpha = 0.8) +
-                geom_boxplot(width = .1, guides = FALSE, outlier.shape = NA, alpha = 0.5) +
+                geom_boxplot(width = .1, outlier.shape = NA, alpha = 0.5) +
                 theme(legend.position="none") +
                 ggtitle(title)
         return(g)
 }
 
+
+#' Scatter plot of number of stable clusters across different k
+#' and percentage of cells in stable clusters across different k.
+#'
+#' @param stable_cluster A list of list returned by AssignStableCluster
+#'
+#' @return A ggplot object
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' ## see README.md
+#' AssignStableCluster(ks_idents_original$k20, ks_idents$`20`)
+#'
+#'ks_stable<- purrr::map2(ks_idents_original, ks_idents, ~AssignStableCluster(ident1= .x, idents = .y))
+#'}
+BootParameterScatterPlot<- function(stable_cluster){
+        percent<- purrr::map_dbl(stable_cluster, "percent_cell_in_stable")
+        stable<- purrr::map_dbl(stable_cluster, "number_of_stable_cluster")
+        g<- dplyr::bind_rows(percent, stable) %>%
+                tibble::add_column(parameter = c("percent", "stable_cluster_num")) %>%
+                tidyr::gather(-parameter, key = "bootpar", value= "value" ) %>%
+                ggplot(aes(x = bootpar, y = value)) +
+                geom_line(aes(group = parameter, col = parameter)) +
+                geom_point() +
+                facet_wrap(~parameter, scale = "free")
+        return(g)
+
+}

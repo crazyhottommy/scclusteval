@@ -30,7 +30,7 @@ JaccardSets<- function(set1, set2){
 #' @export
 #'
 #' @examples
-#' PairWiseJaccardSets(pbmc@ident, pbmc_small@ident)
+#' PairWiseJaccardSets(pbmc@@ident, pbmc_small@@ident)
 #'
 #'
 PairWiseJaccardSets<- function(ident1, ident2){
@@ -61,6 +61,44 @@ SelectHighestJaccard<- function(mat){
         apply(mat, 1, max)
 
 }
+
+
+#' Assign stable cluster
+#'
+#' @param ident1 The cluster identity from the original full data set.
+#' @param idents A list of cluster identity from the subsampled data sets.
+#' @param method what function to summarize the jaccard index across all simulations.
+#' default is median
+#' @param cutoff Cutoff for assigning stable clusters. A jaccard of 0.4 is used
+#' for default
+#'
+#' @return A list containing the raw data for jaccard index for all simulations,
+#' TRUE or FALSE of stable cluster for each cluster and a number of stable clusters
+#' and percentage of cells in stable clusters.
+#' @export
+#'
+#' @examples
+#'
+#' data(idents)
+#' AssignStableCluster(pbmc@@ident, idents)
+AssignStableCluster<- function(ident1, idents, method = median, cutoff = 0.4){
+        mat_list<- purrr::map(idents, ~PairWiseJaccardSets(ident1 = ident1, ident2 = .x))
+        mat_max<- purrr::map(mat_list, SelectHighestJaccard)
+        mats<- purrr::reduce(mat_max, dplyr::bind_rows)
+
+        stable_cluster<- mats %>% dplyr::summarise_all(method) %>%
+                dplyr::mutate_all(~ifelse(.x > cutoff, T, F)) %>% unlist()
+        number_of_stable_cluster<- sum(stable_cluster)
+
+        #calculate number/percentage of cells in stable clusters
+        ident1.list<- split(names(ident1), ident1)
+        number_of_cells_each_cluster<- purrr::map_int(ident1.list, length)
+        percent_cell_in_stable<- sum(number_of_cells_each_cluster[stable_cluster])/sum(number_of_cells_each_cluster)
+        return(list(jaccardIndex = mats, stable_cluster = stable_cluster,
+                    percent_cell_in_stable = percent_cell_in_stable,
+                    number_of_stable_cluster = number_of_stable_cluster))
+}
+
 
 
 #' Bootstrap for a fully processed Seurat object

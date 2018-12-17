@@ -78,37 +78,174 @@ You can install the scclusteval from github:
 devtools::install_github("crazyhottommy/scclusteval")
 ```
 
+## Useful functions
+
+``` r
+library(scclusteval)
+#> Loading required package: Seurat
+#> Loading required package: ggplot2
+#> Loading required package: cowplot
+#> 
+#> Attaching package: 'cowplot'
+#> The following object is masked from 'package:ggplot2':
+#> 
+#>     ggsave
+#> Loading required package: Matrix
+?RandomSubsetData
+?MergeMultipleSeuratObjects
+?PreprocessSubsetData
+?PairWiseJaccardSets
+
+## in Rstudio type below and tab to see all avaiable functions
+## scclusteval::
+```
+
+## The bootstrap process is implemented in a Snakemake workflow
+
+Because for each bootstrap, one has to re-run the whole process of
+`FindVariableGenes`, `ScaleData`, `RunPCA`, `JackStraw` and
+`FindClusters` and for large data set, it can take very long time to
+run.
+
+E.g. if you bootstrap 5 different K, and for each K you bootstrap 100
+times. that’s 500 runs.
+
+Snakemake will take advantage of the HPC cluster with large number of
+CPUs avaiable.
+
+Find the Snakemake workflow
+[scBootClusterSeurat](https://github.com/crazyhottommy/scBootClusterSeurat).
+
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+This is a basic example which shows you some useful functions in the
+package :
 
 ``` r
-## basic example code
+ks_idents<- readRDS("~/gather_bootstrap_k.rds")
+
+k_20_seurat<- readRDS("~/bootstrap_k_preprocess/bootstrap_k_20.rds")
+k_25_seurat<- readRDS("~/bootstrap_k_preprocess/bootstrap_k_25.rds")
+k_30_seurat<- readRDS("~/bootstrap_k_preprocess/bootstrap_k_30.rds")
+k_35_seurat<- readRDS("~/bootstrap_k_preprocess/bootstrap_k_35.rds")
+
+ks_idents_original<- list(k_20_seurat@ident, k_25_seurat@ident, k_30_seurat@ident, k_35_seurat@ident)
+names(ks_idents_original)<- c("k20", "k25", "k30", "k35")
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
+### explore the cluster relationship between different runs
 
 ``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
+## cluster7 and cluster 8 from k20 is the same cluster7 from k25
+PairWiseJaccardSetsHeatmap(PairWiseJaccardSets(k_20_seurat@ident, k_25_seurat@ident),
+                           show_row_dend = F, show_column_dend = F)
 ```
 
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date.
+<img src="man/figures/README-unnamed-chunk-2-1.png" width="60%" height="60%" />
 
-You can also embed plots, for example:
+### Jaccard Raincloud plot for different Ks
 
-<img src="man/figures/README-pressure-1.png" width="100%" />
+``` r
+JaccardRainCloudPlot(k_20_seurat@ident, ks_idents$`20`) + 
+        geom_hline(yintercept = c(0.4, 0.8), linetype = 2) +
+        ggtitle("k=20")
+```
 
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub\!
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="60%" height="60%" />
+
+``` r
+
+JaccardRainCloudPlot(k_25_seurat@ident, ks_idents$`25`) + 
+        geom_hline(yintercept = c(0.4, 0.8), linetype = 2) +
+        ggtitle("k=25")
+```
+
+<img src="man/figures/README-unnamed-chunk-3-2.png" width="60%" height="60%" />
+
+``` r
+
+JaccardRainCloudPlot(k_30_seurat@ident, ks_idents$`30`) + 
+        geom_hline(yintercept = c(0.4, 0.8), linetype = 2) +
+        ggtitle("k=30")
+```
+
+<img src="man/figures/README-unnamed-chunk-3-3.png" width="60%" height="60%" />
+
+``` r
+
+JaccardRainCloudPlot(k_35_seurat@ident, ks_idents$`35`) + 
+        geom_hline(yintercept = c(0.4, 0.8), linetype = 2) +
+        ggtitle("k=35")
+```
+
+<img src="man/figures/README-unnamed-chunk-3-4.png" width="60%" height="60%" />
+
+### How many stable cluster and percentage of cells for each K
+
+``` r
+## for one K
+AssignStableCluster(ks_idents_original$k20, ks_idents$`20`)
+#> $jaccardIndex
+#> # A tibble: 100 x 9
+#>      `0`   `1`   `2`   `3`   `4`   `5`   `6`    `7`    `8`
+#>    <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>  <dbl>  <dbl>
+#>  1 0.332 0.534 0.758 0.785 0.653 0.712 0.804 0.515  0.406 
+#>  2 0.621 0.642 0.708 0.780 0.704 0.603 0.712 0.0263 0.0733
+#>  3 0.430 0.371 0.729 0.803 0.511 0.686 0.5   0.432  0.297 
+#>  4 0.422 0.578 0.75  0.799 0.471 0.701 0.785 0.0528 0.0582
+#>  5 0.582 0.622 0.735 0.780 0.730 0.728 0.705 0.0331 0.933 
+#>  6 0.477 0.595 0.770 0.768 0.647 0.709 0.822 0.0458 0.867 
+#>  7 0.529 0.590 0.779 0.765 0.707 0.702 0.782 0.0493 0.647 
+#>  8 0.532 0.533 0.749 0.802 0.680 0.717 0.706 0.5    0.933 
+#>  9 0.606 0.610 0.710 0.818 0.739 0.702 0.814 0.324  0.812 
+#> 10 0.401 0.601 0.757 0.806 0.683 0.696 0.816 0.472  0.371 
+#> # ... with 90 more rows
+#> 
+#> $stable_cluster
+#>     0     1     2     3     4     5     6     7     8 
+#>  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE 
+#> 
+#> $percent_cell_in_stable
+#> [1] 0.987037
+#> 
+#> $number_of_stable_cluster
+#> [1] 7
+
+## for all Ks
+ks_stable<- purrr::map2(ks_idents_original, ks_idents, ~AssignStableCluster(ident1= .x, idents = .y))
+
+## access different Ks
+ks_stable$k25
+#> $jaccardIndex
+#> # A tibble: 100 x 8
+#>      `0`   `1`   `2`   `3`   `4`   `5`   `6`    `7`
+#>    <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>  <dbl>
+#>  1 0.373 0.439 0.769 0.777 0.688 0.719 0.713 0.351 
+#>  2 0.606 0.608 0.741 0.769 0.679 0.743 0.734 0.615 
+#>  3 0.580 0.611 0.746 0.789 0.672 0.659 0.675 0.324 
+#>  4 0.530 0.616 0.725 0.826 0.709 0.560 0.748 0.34  
+#>  5 0.622 0.642 0.726 0.820 0.728 0.743 0.788 0.698 
+#>  6 0.632 0.633 0.735 0.823 0.728 0.728 0.711 0.784 
+#>  7 0.520 0.598 0.738 0.808 0.709 0.694 0.752 0.311 
+#>  8 0.479 0.613 0.719 0.802 0.426 0.586 0.504 0.474 
+#>  9 0.587 0.661 0.737 0.809 0.725 0.704 0.742 0.333 
+#> 10 0.595 0.562 0.740 0.769 0.726 0.747 0.755 0.0437
+#> # ... with 90 more rows
+#> 
+#> $stable_cluster
+#>     0     1     2     3     4     5     6     7 
+#>  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE 
+#> 
+#> $percent_cell_in_stable
+#> [1] 0.9862963
+#> 
+#> $number_of_stable_cluster
+#> [1] 7
+
+BootParameterScatterPlot(ks_stable)
+```
+
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="60%" height="60%" />
 
 ## Acknowledgements
 

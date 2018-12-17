@@ -9,7 +9,8 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-",
-  out.width = "100%"
+  out.width = "60%",
+  out.height = "60%"
 )
 ```
 # scclusteval
@@ -79,29 +80,93 @@ You can install the scclusteval from github:
 devtools::install_github("crazyhottommy/scclusteval")
 ```
 
+
+## Useful functions
+
+```{r}
+library(scclusteval)
+?RandomSubsetData
+?MergeMultipleSeuratObjects
+?PreprocessSubsetData
+?PairWiseJaccardSets
+
+## in Rstudio type below and tab to see all avaiable functions
+## scclusteval::
+```
+
+## The bootstrap process is implemented in a Snakemake workflow
+
+Because for each bootstrap, one has to re-run the whole process of `FindVariableGenes`,
+`ScaleData`, `RunPCA`, `JackStraw` and `FindClusters` and for large data set, it can
+take very long time to run.
+
+E.g. if you bootstrap 5 different K, and for each K you bootstrap 100 times. that's
+500 runs.
+
+Snakemake will take advantage of the HPC cluster with large number of CPUs avaiable.
+
+Find the Snakemake workflow [scBootClusterSeurat](https://github.com/crazyhottommy/scBootClusterSeurat).
+
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+This is a basic example which shows you some useful functions in the package :
 
 ```{r example}
-## basic example code
+ks_idents<- readRDS("~/gather_bootstrap_k.rds")
+
+k_20_seurat<- readRDS("~/bootstrap_k_preprocess/bootstrap_k_20.rds")
+k_25_seurat<- readRDS("~/bootstrap_k_preprocess/bootstrap_k_25.rds")
+k_30_seurat<- readRDS("~/bootstrap_k_preprocess/bootstrap_k_30.rds")
+k_35_seurat<- readRDS("~/bootstrap_k_preprocess/bootstrap_k_35.rds")
+
+ks_idents_original<- list(k_20_seurat@ident, k_25_seurat@ident, k_30_seurat@ident, k_35_seurat@ident)
+names(ks_idents_original)<- c("k20", "k25", "k30", "k35")
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
-
-```{r cars}
-summary(cars)
+### explore the cluster relationship between different runs 
+```{r}
+## cluster7 and cluster 8 from k20 is the same cluster7 from k25
+PairWiseJaccardSetsHeatmap(PairWiseJaccardSets(k_20_seurat@ident, k_25_seurat@ident),
+                           show_row_dend = F, show_column_dend = F)
 ```
 
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date.
 
-You can also embed plots, for example:
+### Jaccard Raincloud plot for different Ks
 
-```{r pressure, echo = FALSE}
-plot(pressure)
+```{r}
+JaccardRainCloudPlot(k_20_seurat@ident, ks_idents$`20`) + 
+        geom_hline(yintercept = c(0.4, 0.8), linetype = 2) +
+        ggtitle("k=20")
+
+JaccardRainCloudPlot(k_25_seurat@ident, ks_idents$`25`) + 
+        geom_hline(yintercept = c(0.4, 0.8), linetype = 2) +
+        ggtitle("k=25")
+
+JaccardRainCloudPlot(k_30_seurat@ident, ks_idents$`30`) + 
+        geom_hline(yintercept = c(0.4, 0.8), linetype = 2) +
+        ggtitle("k=30")
+
+JaccardRainCloudPlot(k_35_seurat@ident, ks_idents$`35`) + 
+        geom_hline(yintercept = c(0.4, 0.8), linetype = 2) +
+        ggtitle("k=35")
 ```
 
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub!
+### How many stable cluster and percentage of cells for each K
+
+```{r}
+## for one K
+AssignStableCluster(ks_idents_original$k20, ks_idents$`20`)
+
+## for all Ks
+ks_stable<- purrr::map2(ks_idents_original, ks_idents, ~AssignStableCluster(ident1= .x, idents = .y))
+
+## access different Ks
+ks_stable$k25
+
+BootParameterScatterPlot(ks_stable)
+        
+```
+
 
 ## Acknowledgements
 

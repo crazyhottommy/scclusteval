@@ -196,11 +196,11 @@ PairWiseJaccardSets(pbmc@ident, idents[[3]])
 
 
 ### put in function 
-mat_list<- purrr::map(idents, ~PairWiseJaccardSets(ident1 = pbmc@ident, ident2 = .x))
+`mat_list<- purrr::map(idents, ~PairWiseJaccardSets(ident1 = pbmc@ident, ident2 = .x))
 
 mat_max<- purrr::map(mat_list, SelectHighestJaccard)
 
-mats<- purrr::reduce(mat_max, bind_rows)
+mats<- purrr::reduce(mat_max, bind_rows)`
 
 mats %>% as_tibble() %>% tibble::rownames_to_column(var = "bootstrap")  %>%
   tidyr::gather(-bootstrap, key= "cluster", value = "jaccard") %>% 
@@ -217,6 +217,47 @@ mats %>% as_tibble() %>% tibble::rownames_to_column(var = "bootstrap")  %>%
   geom_point(aes(y = jaccard, color = cluster), position = position_jitter(width = .15), size = .5, alpha = 0.8) +
   geom_boxplot(width = .1, guides = FALSE, outlier.shape = NA, alpha = 0.5) +
   theme(legend.position="none")
+
+
+
+mats %>% dplyr::summarise_all(median) %>% dplyr::mutate_all(~ifelse(.x >0.4, T, F))
+
+mats %>% dplyr::summarise_all(mean) %>% dplyr::mutate_all(~ifelse(.x >0.4, T, F)) %>% unlist() %>% str()
+
+## how many stable clusters?
+mats %>% dplyr::summarise_all(median) %>% dplyr::mutate_all(~ifelse(.x >0.4, T, F)) %>%
+  unlist() %>% sum()
+
+
+ks_idents<- readRDS("~/gather_bootstrap_k.rds")
+
+ks_stable<- purrr::map(ks_idents, ~AssignStableCluster(pbmc@ident, .x ))
+
+k_20_seurat<- readRDS("~/bootstrap_k_preprocess/bootstrap_k_20.rds")
+k_25_seurat<- readRDS("~/bootstrap_k_preprocess/bootstrap_k_25.rds")
+k_30_seurat<- readRDS("~/bootstrap_k_preprocess/bootstrap_k_30.rds")
+k_35_seurat<- readRDS("~/bootstrap_k_preprocess/bootstrap_k_35.rds")
+
+pbmc<- k_30_seurat 
+ks_idents_original<- list(k_20_seurat@ident, k_25_seurat@ident, k_30_seurat@ident, k_35_seurat@ident)
+names(ks_idents_original)<- c("k20", "k25", "k30", "k35")
+
+JaccardRainCloudPlot(k_20_seurat@ident, ks_idents$`20`) + geom_hline(yintercept = c(0.4, 0.8), linetype = 2)
+JaccardRainCloudPlot(k_25_seurat@ident, ks_idents$`25`) + geom_hline(yintercept = c(0.4, 0.8), linetype = 2)
+JaccardRainCloudPlot(k_30_seurat@ident, ks_idents$`30`) + geom_hline(yintercept = c(0.4, 0.8), linetype = 2)
+JaccardRainCloudPlot(k_35_seurat@ident, ks_idents$`35`) + geom_hline(yintercept = c(0.4, 0.8), linetype = 2)
+
+## cluster7 and cluster 8 from k20 is the same cluster7 from k25
+PairWiseJaccardSetsHeatmap(PairWiseJaccardSets(k_20_seurat@ident, k_25_seurat@ident))
+
+ks_stable<- purrr::map2(ks_idents_original, ks_idents, ~AssignStableCluster(ident1= .x, idents = .y))
+
+ks_stable$k20
+ks_stable$k25
+ks_stable$k30
+ks_stable$k35
+
+map(ks_stable, c("perdent_cell_in_cluster", "number_of_stable_cluster"))
 
 
 

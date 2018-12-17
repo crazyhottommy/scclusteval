@@ -6,7 +6,7 @@
 Seurat object}
 \usage{
 PairWiseJaccardSetsHeatmap(mat, title = NULL, col_low = "white",
-  col_high = "red", show_row_dend = T, show_column_dent = T)
+  col_high = "red", show_row_dend = T, show_column_dend = T)
 }
 \arguments{
 \item{mat}{The pairwise Jaccard distance matrix returned by
