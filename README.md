@@ -72,10 +72,11 @@ stability values above about 0.85 can be considered highly stable
 
 ## Installation
 
-You can install the scclusteval from github:
+You can install the scclusteval from
+github:
 
 ``` r
-devtools::install_github("crazyhottommy/scclusteval")
+devtools::install_github("crazyhottommy/scclusteval", auth_token="aa791fd9c20a5cb9205774df9c7a78f63fef9c2c")
 ```
 
 ## Useful functions
