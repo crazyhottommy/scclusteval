@@ -6,7 +6,8 @@
 Seurat object}
 \usage{
 PairWiseJaccardSetsHeatmap(mat, title = NULL, col_low = "white",
-  col_high = "red", show_row_dend = T, show_column_dend = T)
+  col_high = "red", cluster_rows = F, cluster_columns = F,
+  show_row_dend = T, show_column_dend = T)
 }
 \arguments{
 \item{mat}{The pairwise Jaccard distance matrix returned by
@@ -18,9 +19,13 @@ PairWiseJaccardSetsHeatmap(mat, title = NULL, col_low = "white",
 
 \item{col_high}{Color for high Jaccard index.}
 
+\item{cluster_rows}{cluster row or not, default FALSE}
+
+\item{cluster_columns}{cluster columns or not, default FASLE}
+
 \item{show_row_dend}{Whether or not show row dendrogram}
 
-\item{show_column_dent}{Whether or not show column dendrogram}
+\item{show_column_dend}{Whether or not show column dendrogram}
 }
 \value{
 A Heatmap representing the pair-wise Jaccard correlation

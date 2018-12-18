@@ -26,7 +26,8 @@
 #' @param resolution Value of the resolution parameter, use a value above (below)
 #' 1.0 if you want to obtain a larger (smaller) number of communities. see FIndClusters.
 #' @param k.param Defines k for the k-nearest neighbor algorithm.
-#' @param score.thresh Threshold to use for the proportion test of PC significance
+#' @param score.thresh Threshold to use for the proportion test of PC significance.
+#' @param sig.pc.thresh Threshold for the significance of a particular PC.
 #' @param ... any other parameters for FindVariableGenes
 #'
 #' @return a fully processed Seurat object
@@ -46,6 +47,7 @@ PreprocessSubsetData<- function(object,
                                 do.par =TRUE,
                                 num.cores = 2,
                                 score.thresh = 1e-5,
+                                sig.pc.thresh = 0.05,
                                 n.start = 100,
                                 nn.eps = 0,
                                 resolution = 0.8,
@@ -72,7 +74,7 @@ PreprocessSubsetData<- function(object,
         PC_pvalues<- object@dr$pca@jackstraw@overall.p.values
 
         ## determin how many PCs to use.
-        pc.use<- max(which(PC_pvalues[,"Score"] <= score.thresh))
+        pc.use<- max(which(PC_pvalues[,"Score"] <= sig.pc.thresh))
 
         # add significant pc number to metadata, need to have names same as the cells
         pc.use.meta<- rep(pc.use, length(object@cell.names))

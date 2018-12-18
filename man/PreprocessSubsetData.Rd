@@ -6,8 +6,8 @@
 \usage{
 PreprocessSubsetData(object, x.low.cutoff = 0.05, x.high.cutoff = 10,
   y.cutoff = 0.5, num.pc = 20, do.par = TRUE, num.cores = 2,
-  score.thresh = 1e-05, n.start = 100, nn.eps = 0,
-  resolution = 0.8, k.param = 30, ...)
+  score.thresh = 1e-05, sig.pc.thresh = 0.05, n.start = 100,
+  nn.eps = 0, resolution = 0.8, k.param = 30, ...)
 }
 \arguments{
 \item{object}{A subsetted Seurat object created by RandomSubsetData}
@@ -30,7 +30,9 @@ Note that for higher number of cores, larger free memory is needed.
 If num.cores = 1 and do.par = TRUE, num.cores will be set to half of all
 available cores on the machine. see JackStraw.}
 
-\item{score.thresh}{Threshold to use for the proportion test of PC significance}
+\item{score.thresh}{Threshold to use for the proportion test of PC significance.}
+
+\item{sig.pc.thresh}{Threshold for the significance of a particular PC.}
 
 \item{n.start}{Number of random start.}
 
