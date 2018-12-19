@@ -103,3 +103,53 @@ BootParameterScatterPlot<- function(stable_cluster){
         return(g)
 
 }
+
+## see https://jokergoo.github.io/circlize_book/book/the-chorddiagram-function.html
+
+#' Plot ChordDiagram of cell identity changes between two runs of clusters.
+#'
+#' @param ident1 a named factor vector. names are the cell names, the values are
+#' the cluster id.
+#' @param ident2 a named factor vector. names are the cell names, the values are
+#' the cluster id.
+#' @param clusters_to_show_ident1 A character vector of cluster ids to show for ident1.
+#' default is NULL, all clusters will be shown.
+#' @param big.gap Gap between sectors of two cluster runs.
+#' @param transparency Transparency of link colors, 0 means no transparency and 1 means full transparency.
+#' see \code{\link[circlize]{chordDiagramFromMatrix}}
+#' @param grid.col Grid colors which correspond to matrix rows/columns (or sectors).
+#' The length of the vector should be either 1 or length(union(rownames(mat), colnames(mat))).
+#' It's preferred that grid.col is a named vector of which names correspond to sectors.
+#' If it is not a named vector, the order of grid.col corresponds to order of sectors.
+#' see \code{\link[circlize]{chordDiagramFromMatrix}}
+#' @param link.sort whether sort links on every sector based on the width of the links on it.
+#' If it is set to "overall", all links are sorted regardless whether they are from rows or columns.
+#' see \code{\link[circlize]{chordDiagramFromMatrix}}
+#' @param link.decreasing for link.sort
+#' @param directional Whether links have directions. 1 means the direction is from the first column
+#' in df to the second column, -1 is the reverse, 0 is no direction, and 2 for two directional.
+#' see \code{\link[circlize]{chordDiagramFromMatrix}}
+#'
+#' @return A data frame which contains positions of links. see \code{\link[circlize]{chordDiagramFromMatrix}}
+#' @export
+#'
+#' @examples
+ClusterIdentityChordPlot<- function(ident1, ident2,
+                                    clusters_to_show_ident1 = NULL,
+                                    big.gap = 10, transparency = 0.5,
+                                    grid.col = NULL,
+                                    link.sort = TRUE, link.decreasing = TRUE,
+                                    directional = -1){
+        mat<- PairWiseOverlappingIdents(ident1, ident2)
+        if (!is.null(clusters_to_show_ident1)){
+                mat<- mat[clusters_to_show_ident1, ]
+        }
+        rownames(mat)<- paste0("1_", rownames(mat))
+        colnames(mat)<- paste0("2_", colnames(mat))
+        circlize::circos.par(start.degree = 90, clock.wise = FALSE)
+        circlize::chordDiagram(mat, big.gap = big.gap, transparency = transparency,
+                               grid.col = grid.col,
+                               link.sort = link.sort, link.decreasing = link.decreasing,
+                               directional = directional)
+        circlize::circos.clear()
+}

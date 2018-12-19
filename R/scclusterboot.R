@@ -46,6 +46,58 @@ PairWiseJaccardSets<- function(ident1, ident2){
 }
 
 
+#' Calculate pair-wise overlapping cluster identities for @@ident slots from two Seurat objects
+#'
+#'Calculate pair-wise overlapping cluster identities for two named factor vector. e.g.
+#' seurat_obj1@ident and seurat_obj2@ident
+#' @param ident1 a named factor vector. names are the cell names, the values are
+#' the cluster id.
+#' @param ident2 a named factor vector. names are the cell names, the values are
+#' the cluster id.
+#'
+#' @return A matrix of pairwise number of common cell identities for each cluster.
+#' @export
+#'
+#' @examples
+#' PairWiseOverlappingIdents(pbmc@@ident, pbmc_small@@ident)
+PairWiseOverlappingIdents<- function(ident1, ident2){
+        ident1.list<- split(names(ident1), ident1)
+        ident2.list<- split(names(ident2), ident2)
+        res<- c()
+        for (i in seq_along(ident1.list)){
+                ind<- purrr::map_dbl(ident2.list, ~length(intersect(ident1.list[[i]], .x)))
+                res<- rbind(res, ind)
+        }
+        rownames(res)<- names(ident1.list)
+        return(res)
+
+}
+
+
+#' Match two run of cluster ids with highest Jaccard index
+#'
+#' @param ident1 a named factor vector. names are the cell names, the values are
+#' the cluster id.
+#' @param ident2 a named factor vector. names are the cell names, the values are
+#' the cluster id.
+#'
+#' @return A tibble with two columns, column 1 is the cluster ids from ident1, column2
+#' is the cluster ids from ident2.
+#' @export
+#'
+#' @examples
+#'  MatchClusters(pbmc@@ident, pbmc_small@@ident)
+MatchClusters<- function(ident1, ident2){
+        jaccard_mat<- PairWiseJaccardSets(ident1, ident2)
+
+        get_corresponding_cluster<- function(x){
+                id<- which.max(x)
+                return(colnames(jaccard_mat)[id])
+        }
+        matching_ids<- apply(jaccard_mat, 1, get_corresponding_cluster)
+        return(tibble::tibble(ident1 = names(matching_ids), ident2 = matching_ids))
+}
+
 #' Select Highest Jaccard to match clusters
 #'
 #'

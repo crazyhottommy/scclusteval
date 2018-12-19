@@ -259,6 +259,27 @@ ks_stable$k35
 
 map(ks_stable, c("perdent_cell_in_cluster", "number_of_stable_cluster"))
 
+table(k_20_seurat@ident, k_30_seurat@ident)
+
+jaccard_mat<- PairWiseJaccardSets(k_20_seurat@ident, k_25_seurat@ident)
+
+get_colname<- function(x){
+  id<- which.max(x)
+  return(colnames(jaccard_mat)[id])
+}
+
+ids<- apply(jaccard_mat, 1, get_colname) 
+tibble::tibble(ident1 = names(ids), ident2 = ids)
+
+MatchClusters(k_20_seurat@ident, k_25_seurat@ident)
+
+mat<- PairWiseOverlappingIdents(k_20_seurat@ident, k_25_seurat@ident)
+rownames(mat)<- paste0("1_", rownames(mat))
+colnames(mat)<- paste0("2_", colnames(mat))
+circlize::circos.par(start.degree = 90, clock.wise = FALSE)
+#grid.col<- c("")
+circlize::chordDiagram(mat, big.gap = 20, transparency = 0.5, link.sort = TRUE, link.decreasing = FALSE, directional = -1)
+circlize::circos.clear()
 
 
 ```

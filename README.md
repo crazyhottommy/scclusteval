@@ -3,8 +3,9 @@
 
 # scclusteval
 
-The goal of scclusteval is to evaluate the single cell clustering
-stability by boostrapping the cells.
+The goal of scclusteval(Single Cell Cluster Evaluation) is to evaluate
+the single cell clustering stability by boostrapping the cells and
+provide many visualization methods for comparing clusters.
 
 for Theory behind the method, see Christian Henning, “Cluster-wise
 assessment of cluster stability,” Research Report 271, Dept. of
@@ -145,6 +146,14 @@ PairWiseJaccardSetsHeatmap(PairWiseJaccardSets(k_20_seurat@ident, k_25_seurat@id
 
 <img src="man/figures/README-unnamed-chunk-2-1.png" width="60%" height="60%" />
 
+``` r
+
+## how many cells identity change from one cluster to another
+ClusterIdentityChordPlot(k_20_seurat@ident, k_25_seurat@ident)
+```
+
+<img src="man/figures/README-unnamed-chunk-2-2.png" width="60%" height="60%" />
+
 ### Jaccard Raincloud plot for different Ks
 
 ``` r
@@ -269,5 +278,13 @@ read this blog post
 
 ## To do list
 
-  - impurity metric for assessing cluster stability
+  - adding checks for all functions. `stop` messages.
+  - implement more visualization functions.
+  - impurity metric for assessing cluster stability.
   - plot number of clusters in each iteration.
+  - read this post from Jean Fan from Xiaowei Zhuang’s lab
+    <https://jef.works/blog/2018/02/28/stability-testing/>
+    `getComMembership` function works on raw data matrix. It can be used
+    independent of Seurat’s `FindClusters`. chat with Jean for more
+    details.
+  - gene sets enrichment for each cluster.
