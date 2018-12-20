@@ -59,7 +59,7 @@ PreprocessSubsetData<- function(object,
                                    y.cutoff = y.cutoff)
 
         object<- ScaleData(object = object, genes.use = object@var.genes,
-                           vars.to.regress = c("percent.mito","nUMI"), block.size = 400,
+                           vars.to.regress = c("percent.mito","nUMI"), block.size = 1000,
                            min.cells.to.block=3000,
                            display.progress = TRUE, do.par = TRUE, num.cores = num.cores)
 

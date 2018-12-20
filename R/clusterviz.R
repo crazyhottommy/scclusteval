@@ -2,8 +2,10 @@
 #' Seurat object
 #'
 #'
-#' @param mat The pairwise Jaccard distance matrix returned by
-#' \code{\link{PairWiseJaccardSets}}
+#' @param ident1 a named factor vector. names are the cell names, the values are
+#' the cluster id.
+#' @param ident2 a named factor vector. names are the cell names, the values are
+#' the cluster id.
 #' @param col_low Color for low Jaccard index.
 #' @param col_high Color for high Jaccard index.
 #' @param title  The title of the heatmap
@@ -17,14 +19,14 @@
 #'
 #' @examples
 #'
-PairWiseJaccardSetsHeatmap<- function(mat, title = NULL, col_low = "white", col_high= "red",
+PairWiseJaccardSetsHeatmap<- function(ident1, ident2, title = NULL, col_low = "white", col_high= "red",
                                       cluster_rows = F, cluster_columns =F,
                                       show_row_dend = T, show_column_dend = T){
         cell_fun = function(j, i, x, y, width, height, fill) {
                 grid::grid.rect(x = x, y = y, width = width *0.99, height = height *0.99,
                           gp = grid::gpar(col = "grey", fill = fill, lty = 1, lwd = 0.5))
         }
-
+        mat<- PairWiseJaccardSets(ident1, ident2)
         col_fun<- circlize::colorRamp2(c(0, 1), c(col_low, col_high))
         ComplexHeatmap::Heatmap(mat,
                                 cluster_rows = cluster_rows, cluster_columns = cluster_columns,

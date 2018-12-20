@@ -5,13 +5,16 @@
 \title{Make a Heatmap of the pairwise Jaccard distance between cluster ident of two
 Seurat object}
 \usage{
-PairWiseJaccardSetsHeatmap(mat, title = NULL, col_low = "white",
-  col_high = "red", cluster_rows = F, cluster_columns = F,
-  show_row_dend = T, show_column_dend = T)
+PairWiseJaccardSetsHeatmap(ident1, ident2, title = NULL,
+  col_low = "white", col_high = "red", cluster_rows = F,
+  cluster_columns = F, show_row_dend = T, show_column_dend = T)
 }
 \arguments{
-\item{mat}{The pairwise Jaccard distance matrix returned by
-\code{\link{PairWiseJaccardSets}}}
+\item{ident1}{a named factor vector. names are the cell names, the values are
+the cluster id.}
+
+\item{ident2}{a named factor vector. names are the cell names, the values are
+the cluster id.}
 
 \item{title}{The title of the heatmap}
 
