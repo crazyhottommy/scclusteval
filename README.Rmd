@@ -22,6 +22,25 @@ for Theory behind the method, see Christian Henning, “Cluster-wise assessment 
 cluster stability,” Research Report 271, Dept. of Statistical Science, University 
 College London, December 2006)
 
+### Parameters that affect the clustering
+
+The most popular clustering method for single cell RNAseq is shared nearest neighbor (SNN)
+which is implemented in `{Seurat::FindClusters}`. See a paper by Mark Robinson group for comparing
+single cell RNAseq clustering methods:[A systematic performance evaluation of clustering methods for single-cell RNA-seq data](https://f1000research.com/articles/7-1141/v1)
+SNN in Seurat is the most accurate and fast one.
+
+`FindClusters` works on `Seruat` object. If you have a data matrix, take a look at `scran` package, make a `SingleCellExperiment` object and read through https://bioconductor.org/packages/release/workflows/vignettes/simpleSingleCell/inst/doc/work-2-umis.html#9_clustering_cells_into_putative_subpopulations
+
+Note that `buidSNNGraph` works on data matrix as well.
+```
+library(scran)
+snn.gr <- buildSNNGraph(sce, use.dimred="PCA", k=25)
+sce$Cluster <- factor(igraph::cluster_walktrap(snn.gr)$membership)
+table(sce$Cluster)
+```
+The parameter `k` which specifies the number of nearest neighbors has a great effect on the number
+of clusters.
+
 The process is as follows (paraphased from Stephen Eichhorn in Xiaowei Zhuang lab) :
 
 1. Performing the clustering at many different K values on the full data set. 
@@ -185,6 +204,7 @@ Thanks to Sophia(Zhengzheng) Liang in Dulac lab for sharing data and giving feed
 fpc package `clusterboot`. 
 
 read this blog post http://www.win-vector.com/blog/2015/09/bootstrap-evaluation-of-clusters/
+and https://www.czasopisma.uni.lodz.pl/foe/article/view/983
 
 ## To do list
 
