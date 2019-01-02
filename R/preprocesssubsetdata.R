@@ -74,7 +74,7 @@ PreprocessSubsetData<- function(object,
         PC_pvalues<- object@dr$pca@jackstraw@overall.p.values
 
         ## determin how many PCs to use.
-        pc.use<- max(which(PC_pvalues[,"Score"] <= sig.pc.thresh))
+        pc.use<- min(which(PC_pvalues[,"Score"] > sig.pc.thresh)) -1
 
         # add significant pc number to metadata, need to have names same as the cells
         pc.use.meta<- rep(pc.use, length(object@cell.names))
