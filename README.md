@@ -11,8 +11,21 @@ for Theory behind the method, see Christian Henning, “Cluster-wise
 assessment of cluster stability,” Research Report 271, Dept. of
 Statistical Science, University College London, December 2006)
 
+### Parameters that affect the clustering
+
+The most popular clustering method for single cell RNAseq is shared
+nearest neighbor (SNN) which is implemented in `{Seurat::FindClusters}`.
+See a paper by Mark Robinson group for comparing single cell RNAseq
+clustering methods:[A systematic performance evaluation of clustering
+methods for single-cell RNA-seq
+data](https://f1000research.com/articles/7-1141/v1) SNN in Seurat is the
+most accurate and fast one.
+
+The parameter `k.param` which specifies the number of nearest neighbors
+has a great effect on the number of clusters.
+
 The process is as follows (paraphased from Stephen Eichhorn in Xiaowei
-Zhuang lab) :
+Zhuang lab) to assess which k is best to use:
 
 1.  Performing the clustering at many different K values on the full
     data set.
@@ -275,6 +288,7 @@ fpc package `clusterboot`.
 
 read this blog post
 <http://www.win-vector.com/blog/2015/09/bootstrap-evaluation-of-clusters/>
+and <https://www.czasopisma.uni.lodz.pl/foe/article/view/983>
 
 ## To do list
 
