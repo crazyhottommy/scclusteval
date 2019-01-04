@@ -5,9 +5,10 @@
 \title{Make a Heatmap of the pairwise Jaccard distance between cluster ident of two
 Seurat object}
 \usage{
-PairWiseJaccardSetsHeatmap(ident1, ident2, title = NULL,
-  col_low = "white", col_high = "red", cluster_rows = F,
-  cluster_columns = F, show_row_dend = T, show_column_dend = T)
+PairWiseJaccardSetsHeatmap(ident1, ident2, best_match = FALSE,
+  title = NULL, col_low = "white", col_high = "red",
+  cluster_rows = F, cluster_columns = F, show_row_dend = F,
+  show_column_dend = F, ...)
 }
 \arguments{
 \item{ident1}{a named factor vector. names are the cell names, the values are
@@ -15,6 +16,13 @@ the cluster id.}
 
 \item{ident2}{a named factor vector. names are the cell names, the values are
 the cluster id.}
+
+\item{best_match}{Whether or not only show the best match of ident1 from ident2.
+if set to TRUE, the Jaccard index matrix will be subsetted using the ident2 column
+from the output of \code{\link{MatchClusters}}, the row order will be in order from cluster
+0 to the total number of clusters, the columns will be the best match of ident1 from ident2,
+and the columns idents could be duplicated. e.g. single cluster from ident2 matches multiple
+clusters in ident1.}
 
 \item{title}{The title of the heatmap}
 
@@ -29,9 +37,12 @@ the cluster id.}
 \item{show_row_dend}{Whether or not show row dendrogram}
 
 \item{show_column_dend}{Whether or not show column dendrogram}
+
+\item{...}{other parameters pass to \code{\link[ComplexHeatmap]{Heatmap}}}
 }
 \value{
-A Heatmap representing the pair-wise Jaccard correlation
+A Heatmap representing the pair-wise Jaccard correlation, rows are ident1,
+columns are ident2
 }
 \description{
 Make a Heatmap of the pairwise Jaccard distance between cluster ident of two
