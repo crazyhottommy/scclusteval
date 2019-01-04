@@ -98,22 +98,6 @@ MatchClusters<- function(ident1, ident2){
         return(tibble::tibble(ident1 = names(matching_ids), ident2 = matching_ids))
 }
 
-#' Select Highest Jaccard to match clusters
-#'
-#'
-#' @param mat This matrix is returned by \code{\link{PairWiseJaccardSets}}
-#'
-#' @return A named number of Jaccard distance with names of the original cluster id
-#' in the original unsubsetted seurat object.
-#'
-#' @export
-#'
-#' @examples
-SelectHighestJaccard<- function(mat){
-        apply(mat, 1, max)
-
-}
-
 
 #' Assign stable cluster
 #'
@@ -135,6 +119,10 @@ SelectHighestJaccard<- function(mat){
 #' AssignStableCluster(pbmc@@ident, idents)
 AssignStableCluster<- function(ident1, idents, method = median, cutoff = 0.4){
         mat_list<- purrr::map(idents, ~PairWiseJaccardSets(ident1 = ident1, ident2 = .x))
+        SelectHighestJaccard<- function(mat){
+                apply(mat, 1, max)
+
+        }
         mat_max<- purrr::map(mat_list, SelectHighestJaccard)
         mats<- purrr::reduce(mat_max, dplyr::bind_rows)
 

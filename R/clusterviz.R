@@ -13,32 +13,62 @@
 #' @param cluster_columns cluster columns or not, default FASLE
 #' @param show_column_dend Whether or not show column dendrogram
 #' @param show_row_dend Whether or not show row dendrogram
+#' @param best_match Whether or not only show the best match of ident1 from ident2.
+#' if set to TRUE, the Jaccard index matrix will be subsetted using the ident2 column
+#' from the output of \code{\link{MatchClusters}}, the row order will be in order from cluster
+#' 0 to the total number of clusters, the columns will be the best match of ident1 from ident2,
+#' and the columns idents could be duplicated. e.g. single cluster from ident2 matches multiple
+#' clusters in ident1.
+#' @param ... other parameters pass to \code{\link[ComplexHeatmap]{Heatmap}}
 #'
-#' @return A Heatmap representing the pair-wise Jaccard correlation
+#' @return A Heatmap representing the pair-wise Jaccard correlation, rows are ident1,
+#' columns are ident2
 #' @export
 #'
 #' @examples
 #'
-PairWiseJaccardSetsHeatmap<- function(ident1, ident2, title = NULL, col_low = "white", col_high= "red",
+PairWiseJaccardSetsHeatmap<- function(ident1, ident2, best_match = FALSE,
+                                      title = NULL, col_low = "white", col_high= "red",
                                       cluster_rows = F, cluster_columns =F,
-                                      show_row_dend = T, show_column_dend = T){
+                                      show_row_dend = F, show_column_dend = F, ...){
         cell_fun = function(j, i, x, y, width, height, fill) {
                 grid::grid.rect(x = x, y = y, width = width *0.99, height = height *0.99,
                           gp = grid::gpar(col = "grey", fill = fill, lty = 1, lwd = 0.5))
         }
         mat<- PairWiseJaccardSets(ident1, ident2)
         col_fun<- circlize::colorRamp2(c(0, 1), c(col_low, col_high))
-        ComplexHeatmap::Heatmap(mat,
-                                cluster_rows = cluster_rows, cluster_columns = cluster_columns,
-                                show_row_names = T, show_column_names = T,
-                                show_row_dend = show_row_dend,
-                                show_column_dend = show_column_dend,
-                                col = col_fun, rect_gp = grid::gpar(type = "none"),
-                                cell_fun = cell_fun,
-                                name = "Jaccard distance",
-                                column_title = title,
-                                heatmap_legend_param = list(color_bar = "discrete"))
+        if (best_match){
+                cluster_rows = F
+                cluster_columns =F
+                show_row_dend = F
+                show_column_dend = F
+                match_idx<- MatchClusters(ident1, ident2)
+                ComplexHeatmap::Heatmap(mat[, match_idx$ident2],
+                                        cluster_rows = cluster_rows, cluster_columns = cluster_columns,
+                                        show_row_names = T, show_column_names = T,
+                                        show_row_dend = show_row_dend,
+                                        show_column_dend = show_column_dend,
+                                        col = col_fun, rect_gp = grid::gpar(type = "none"),
+                                        cell_fun = cell_fun,
+                                        name = "Jaccard distance",
+                                        column_title = title,
+                                        heatmap_legend_param = list(color_bar = "discrete"),
+                                        ...)
+        }
+        else{
+                ComplexHeatmap::Heatmap(mat,
+                                        cluster_rows = cluster_rows, cluster_columns = cluster_columns,
+                                        show_row_names = T, show_column_names = T,
+                                        show_row_dend = show_row_dend,
+                                        show_column_dend = show_column_dend,
+                                        col = col_fun, rect_gp = grid::gpar(type = "none"),
+                                        cell_fun = cell_fun,
+                                        name = "Jaccard distance",
+                                        column_title = title,
+                                        heatmap_legend_param = list(color_bar = "discrete"),
+                                        ...)
 
+        }
 
 }
 
@@ -62,6 +92,10 @@ PairWiseJaccardSetsHeatmap<- function(ident1, ident2, title = NULL, col_low = "w
 #'
 JaccardRainCloudPlot<- function(ident1, idents, title= NULL){
         mat_list<- purrr::map(idents, ~PairWiseJaccardSets(ident1 = ident1, ident2 = .x))
+        SelectHighestJaccard<- function(mat){
+                apply(mat, 1, max)
+
+        }
         mat_max<- purrr::map(mat_list, SelectHighestJaccard)
         mats<- purrr::reduce(mat_max, dplyr::bind_rows)
 
