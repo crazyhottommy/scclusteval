@@ -3,6 +3,7 @@
 
 # scclusteval
 
+<img src="man/figures/scclusteval.png" title="hex sticker" alt="hex sticker" width="10%" height="60%" />
 The goal of scclusteval(Single Cell Cluster Evaluation) is to evaluate
 the single cell clustering stability by boostrapping the cells and
 provide many visualization methods for comparing clusters.

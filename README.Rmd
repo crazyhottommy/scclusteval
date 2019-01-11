@@ -15,6 +15,10 @@ knitr::opts_chunk$set(
 ```
 # scclusteval
 
+```{r pressure, echo=FALSE, fig.cap="hex sticker", out.width = '10%'}
+knitr::include_graphics("man/figures/scclusteval.png")
+```
+
 The goal of scclusteval(Single Cell Cluster Evaluation) is to evaluate the single cell clustering stability by
 boostrapping the cells and provide many visualization methods for comparing clusters.
 
@@ -33,7 +37,7 @@ The parameter `k.param` which specifies the number of nearest neighbors has a gr
 of clusters.
 
 The process is as follows (paraphased from Stephen Eichhorn in Xiaowei Zhuang lab)
-to assess which k is best to use:
+to assess which k is best to use by subsampling the original data:
 
 1. Performing the clustering at many different K values on the full data set. 
 
@@ -105,9 +109,11 @@ library(scclusteval)
 ## scclusteval::
 ```
 
-## The bootstrap process is implemented in a Snakemake workflow
+## The subsampling/bootstrap process is implemented in a Snakemake workflow
 
-Because for each bootstrap, one has to re-run the whole process of `FindVariableGenes`,
+**Todo: resampling with replacement (bootstrap).**
+
+Because for each subsampling/bootstrap, one has to re-run the whole process of `FindVariableGenes`,
 `ScaleData`, `RunPCA`, `JackStraw` and `FindClusters` and for large data set, it can
 take very long time to run.
 
