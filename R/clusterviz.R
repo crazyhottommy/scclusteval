@@ -1,3 +1,26 @@
+
+#' Make a Barplot for cluster size
+#'
+#' @param ident a named factor vector. names are the cell names, the values are
+#' the cluster id.
+#' @param bar_col color for the bar. Default is blue.
+#'
+#' @return a ggplot2 bar graph object
+#' @export
+#'
+#' @examples
+#' data(pbmc_small)
+#' CLusterSizeBarplot(pbmc_small@@ident)
+#'
+ClusterSizeBarplot<- function(ident, bar_col = "blue"){
+        as.data.frame(table(ident)) %>%
+                dplyr::rename(cluster = ident, size = Freq) %>%
+                ggplot(aes(x = cluster, y = size)) +
+                geom_bar(stat = "identity", fill = bar_col) +
+                geom_text(aes(label=size), vjust= -1.5, angle = 45) +
+                theme(axis.text.x = element_text(angle = 45, hjust = 1))
+}
+
 #' Make a Heatmap of the pairwise Jaccard distance between cluster ident of two
 #' Seurat object
 #'

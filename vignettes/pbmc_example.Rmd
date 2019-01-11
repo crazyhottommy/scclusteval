@@ -282,6 +282,16 @@ circlize::chordDiagram(mat, big.gap = 20, transparency = 0.5, link.sort = TRUE, 
 circlize::circos.clear()
 
 
+pbmc@ident %>% table() %>% as.data.frame()
+pbmc@ident %>% table() %>% rbind() %>% as.data.frame()
+
+cluster_size<- as.data.frame(table(pbmc@ident))
+as.data.frame(table(pbmc@ident)) %>% 
+  dplyr::rename(cluster = Var1, size = Freq) %>%
+  ggplot(aes(x = cluster, y = size)) +
+  geom_bar(stat = "identity", fill = "blue") +
+  geom_text(aes(label=size), vjust= -1.5, angle = 45) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 
