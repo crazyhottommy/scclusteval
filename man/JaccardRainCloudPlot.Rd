@@ -4,12 +4,14 @@
 \alias{JaccardRainCloudPlot}
 \title{Plot the Jaccard index distribution using raincloud plot}
 \usage{
-JaccardRainCloudPlot(ident1, idents, title = NULL)
+JaccardRainCloudPlot(idents1, idents2, title = NULL)
 }
 \arguments{
-\item{ident1}{The cluster identity from the original full data set.}
+\item{idents1}{A list of cluster identity from the subsampled data set
+before reclustering. (cluster id copied from the original full data set)}
 
-\item{idents}{A list of cluster identity from the subsampled data sets.}
+\item{idents2}{A list of cluster identity from the subsampled data sets after
+reclustering.}
 
 \item{title}{Title of the plot}
 }
@@ -24,7 +26,7 @@ Plot the Jaccard index distribution using raincloud plot
 \dontrun{
 data(idents)
 ## the pbmc here need to be fully processed.
-JaccardRainCloudPlot(pbmc@ident, idents)
+JaccardRainCloudPlot(idents, idents)
 }
 
 }

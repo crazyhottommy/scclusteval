@@ -4,12 +4,15 @@
 \alias{AssignStableCluster}
 \title{Assign stable cluster}
 \usage{
-AssignStableCluster(ident1, idents, method = median, cutoff = 0.4)
+AssignStableCluster(idents1, idents2, method = median, cutoff = 0.4)
 }
 \arguments{
-\item{ident1}{The cluster identity from the original full data set.}
+\item{idents1}{A list of cluster identity copied from the orginal data sets.
+idents1 is a list of the cluster identity from the subsampled data sets before reclustering.}
 
-\item{idents}{A list of cluster identity from the subsampled data sets.}
+\item{idents2}{A list of cluster identity from the subsampled data sets.
+idents2 is a list of the cluster identity from the subsampled data sets after reclustering.
+The order of identities in idents1 and idents2 should correspond to each other.}
 
 \item{method}{what function to summarize the jaccard index across all simulations.
 default is median}
@@ -19,8 +22,7 @@ for default}
 }
 \value{
 A list containing the raw data for jaccard index for all simulations,
-TRUE or FALSE of stable cluster for each cluster and a number of stable clusters
-and percentage of cells in stable clusters.
+TRUE or FALSE of stable cluster for each cluster and a number of stable clusters.
 }
 \description{
 Assign stable cluster
@@ -28,5 +30,7 @@ Assign stable cluster
 \examples{
 
 data(idents)
-AssignStableCluster(pbmc@ident, idents)
+dummy example, all clusters are stable.
+AssignStableCluster(idents, idents)
+
 }

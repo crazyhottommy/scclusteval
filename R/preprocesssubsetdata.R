@@ -13,7 +13,10 @@
 #' @param y.cutoff Bottom cutoff on y-axis for identifying variable genes
 #' @param num.pc number of PCs to calculate in RunPCA, JackStraw and JackStrawPlot
 #' step. The optimal PCs for FindClusters will be determined by only significant PCs
-#' from JackStrawPlot.
+#' from JackStrawPlot or if pc.use is set, JackStraw step will be skipped and use pc.use
+#' for FindClusters.
+#' @param pc.use number of PCs used for FindClusters. if pc.use is set, JackStraw step
+#' will be skipped and use pc.use for FindClusters. score.thresh and sig.pc.thresh will be ignored.
 #' @param do.par use parallel processing for regressing out variables faster.
 #' If set to TRUE, will use half of the machines available cores. see JackStraw.
 #' @param num.cores If do.par = TRUE, specify the number of cores to use.
@@ -44,6 +47,7 @@ PreprocessSubsetData<- function(object,
                                 x.high.cutoff = 10,
                                 y.cutoff = 0.5,
                                 num.pc = 20,
+                                pc.use = NULL,
                                 do.par =TRUE,
                                 num.cores = 2,
                                 score.thresh = 1e-5,
@@ -66,20 +70,23 @@ PreprocessSubsetData<- function(object,
         object<- RunPCA(object = object, pc.genes = object@var.genes,
                         pcs.compute = num.pc, do.print = FALSE)
 
-        object<- JackStraw( object = object, num.replicate = 100, num.cores = num.cores,
-                do.par = T, num.pc = num.pc)
+        if (is.null(pc.use)){
+                object<- JackStraw( object = object, num.replicate = 100, num.cores = num.cores,
+                                    do.par = T, num.pc = num.pc)
 
-        object <- JackStrawPlot(object = object, PCs = 1:num.pc, score.thresh = score.thresh)
+                object <- JackStrawPlot(object = object, PCs = 1:num.pc, score.thresh = score.thresh)
 
-        PC_pvalues<- object@dr$pca@jackstraw@overall.p.values
+                PC_pvalues<- object@dr$pca@jackstraw@overall.p.values
 
-        ## determin how many PCs to use.
-        pc.use<- min(which(PC_pvalues[,"Score"] > sig.pc.thresh)) -1
+                ## determin how many PCs to use.
+                pc.use<- min(which(PC_pvalues[,"Score"] > sig.pc.thresh)) -1
+
+        }
 
         # add significant pc number to metadata, need to have names same as the cells
         pc.use.meta<- rep(pc.use, length(object@cell.names))
         names(pc.use.meta)<- object@cell.names
-        object<- AddMetaData(object = object, metadata = pc.use.meta, col.name = "pc.sig")
+        object<- AddMetaData(object = object, metadata = pc.use.meta, col.name = "pc.use")
         object <- FindClusters(object = object, reduction.type = "pca",
                                 dims.use = 1:pc.use,
                                 n.start = n.start,

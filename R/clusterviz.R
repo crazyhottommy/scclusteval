@@ -13,12 +13,13 @@
 #' CLusterSizeBarplot(pbmc_small@@ident)
 #'
 ClusterSizeBarplot<- function(ident, bar_col = "blue"){
-        as.data.frame(table(ident)) %>%
+        g<- as.data.frame(table(ident)) %>%
                 dplyr::rename(cluster = ident, size = Freq) %>%
                 ggplot(aes(x = cluster, y = size)) +
                 geom_bar(stat = "identity", fill = bar_col) +
                 geom_text(aes(label=size), vjust= -1.5, angle = 45) +
                 theme(axis.text.x = element_text(angle = 45, hjust = 1))
+        returm(g)
 }
 
 #' Make a Heatmap of the pairwise Jaccard distance between cluster ident of two
@@ -98,8 +99,10 @@ PairWiseJaccardSetsHeatmap<- function(ident1, ident2, best_match = FALSE,
 
 #' Plot the Jaccard index distribution using raincloud plot
 #'
-#' @param ident1 The cluster identity from the original full data set.
-#' @param idents A list of cluster identity from the subsampled data sets.
+#' @param idents1 A list of cluster identity from the subsampled data set
+#' before reclustering. (cluster id copied from the original full data set)
+#' @param idents2 A list of cluster identity from the subsampled data sets after
+#' reclustering.
 #' @param title Title of the plot
 #'
 #' @return A ggplot2 object
@@ -110,18 +113,11 @@ PairWiseJaccardSetsHeatmap<- function(ident1, ident2, best_match = FALSE,
 #'\dontrun{
 #'data(idents)
 #'## the pbmc here need to be fully processed.
-#'JaccardRainCloudPlot(pbmc@@ident, idents)
+#'JaccardRainCloudPlot(idents, idents)
 #'}
 #'
-JaccardRainCloudPlot<- function(ident1, idents, title= NULL){
-        mat_list<- purrr::map(idents, ~PairWiseJaccardSets(ident1 = ident1, ident2 = .x))
-        SelectHighestJaccard<- function(mat){
-                apply(mat, 1, max)
-
-        }
-        mat_max<- purrr::map(mat_list, SelectHighestJaccard)
-        mats<- purrr::reduce(mat_max, dplyr::bind_rows)
-
+JaccardRainCloudPlot<- function(idents1, idents2, title= NULL){
+        mats<- AssignHighestJaccard(idents1, idents2)
         g<- mats %>% tibble::as_tibble() %>% tibble::rownames_to_column(var = "bootstrap")  %>%
                 tidyr::gather(-bootstrap, key= "cluster", value = "jaccard") %>%
                 ggplot(aes(x = cluster, y = jaccard, fill = cluster)) +

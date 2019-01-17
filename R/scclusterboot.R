@@ -99,47 +99,84 @@ MatchClusters<- function(ident1, ident2){
 }
 
 
-#' Assign stable cluster
+
+#' Assign highest Jaccard index for each cluster of the subsampled data set before
+#' reclustering with the cluster identites of subsampled data set after reclustering
 #'
-#' @param ident1 The cluster identity from the original full data set.
-#' @param idents A list of cluster identity from the subsampled data sets.
-#' @param method what function to summarize the jaccard index across all simulations.
-#' default is median
-#' @param cutoff Cutoff for assigning stable clusters. A jaccard of 0.4 is used
-#' for default
+#' @param idents1 A list of cluster identity copied from the orginal data sets.
+#' idents1 is a list of the cluster identity from the subsampled data sets before reclustering.
+#' @param idents2 A list of cluster identity from the subsampled data sets.
+#' idents2 is a list of the cluster identity from the subsampled data sets after reclustering.
+#' The order of identities in idents1 and idents2 should correspond to each other.
 #'
-#' @return A list containing the raw data for jaccard index for all simulations,
-#' TRUE or FALSE of stable cluster for each cluster and a number of stable clusters
-#' and percentage of cells in stable clusters.
+#' @return A matrix with dimention of #number of subsampling * #number of clusters in the
+#' original data set.
 #' @export
 #'
 #' @examples
-#'
-#' data(idents)
-#' AssignStableCluster(pbmc@@ident, idents)
-AssignStableCluster<- function(ident1, idents, method = median, cutoff = 0.4){
-        mat_list<- purrr::map(idents, ~PairWiseJaccardSets(ident1 = ident1, ident2 = .x))
+AssignHighestJaccard<- function(idents1, idents2){
+        mat_list<- purrr::map2(idents1, idents2,  ~PairWiseJaccardSets(ident1 = .x, ident2 = .y))
         SelectHighestJaccard<- function(mat){
                 apply(mat, 1, max)
 
         }
         mat_max<- purrr::map(mat_list, SelectHighestJaccard)
         mats<- purrr::reduce(mat_max, dplyr::bind_rows)
+        return(mats)
+}
 
+#' Assign stable cluster
+#'
+#' @param idents1 A list of cluster identity copied from the orginal data sets.
+#' idents1 is a list of the cluster identity from the subsampled data sets before reclustering.
+#' @param idents2 A list of cluster identity from the subsampled data sets.
+#' idents2 is a list of the cluster identity from the subsampled data sets after reclustering.
+#' The order of identities in idents1 and idents2 should correspond to each other.
+#' @param method what function to summarize the jaccard index across all simulations.
+#' default is median
+#' @param cutoff Cutoff for assigning stable clusters. A jaccard of 0.4 is used
+#' for default
+#'
+#' @return A list containing the raw data for jaccard index for all simulations,
+#' TRUE or FALSE of stable cluster for each cluster and a number of stable clusters.
+#'
+#' @export
+#'
+#' @examples
+#'
+#' data(idents)
+#' dummy example, all clusters are stable.
+#' AssignStableCluster(idents, idents)
+#'
+AssignStableCluster<- function(idents1, idents2, method = median, cutoff = 0.6){
+        mats<- AssignHighestJaccard(idents1, idents2)
         stable_cluster<- mats %>% dplyr::summarise_all(method) %>%
                 dplyr::mutate_all(~ifelse(.x > cutoff, T, F)) %>% unlist()
         number_of_stable_cluster<- sum(stable_cluster)
-
-        #calculate number/percentage of cells in stable clusters
-        ident1.list<- split(names(ident1), ident1)
-        number_of_cells_each_cluster<- purrr::map_int(ident1.list, length)
-        percent_cell_in_stable<- sum(number_of_cells_each_cluster[stable_cluster])/sum(number_of_cells_each_cluster)
         return(list(jaccardIndex = mats, stable_cluster = stable_cluster,
-                    percent_cell_in_stable = percent_cell_in_stable,
                     number_of_stable_cluster = number_of_stable_cluster))
 }
 
 
+#' Calculate the percentage of cells in stable clusters in the full data set
+#'
+#' @param ident. A named factor vector. names are the cell names, the values are
+#' the cluster id from the full data set.
+#' @param stable_cluster. A logical vector for each of the original cluster indicating
+#' it is stable or not, calculated from \code{\link{AssignStableCluster}}
+#'
+#' @return A percentage of cells in stable cluster
+#' @export
+#'
+#' @examples
+
+CalculatePercentCellInStable<- function(ident, stable_cluster){
+        ident.list<- split(names(ident), ident)
+        number_of_cells_each_cluster<- purrr::map_int(ident.list, length)
+        percent_cell_in_stable<- sum(number_of_cells_each_cluster[stable_cluster])/sum(number_of_cells_each_cluster)
+        return(percent_cell_in_stable)
+
+}
 
 #' Bootstrap for a fully processed Seurat object
 #'
