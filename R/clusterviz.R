@@ -4,6 +4,7 @@
 #' @param ident a named factor vector. names are the cell names, the values are
 #' the cluster id.
 #' @param bar_col color for the bar. Default is blue.
+#' @param label_number whether or not put cell number in each cluster on top of the bar
 #'
 #' @return a ggplot2 bar graph object
 #' @export
@@ -12,14 +13,20 @@
 #' data(pbmc_small)
 #' CLusterSizeBarplot(pbmc_small@@ident)
 #'
-ClusterSizeBarplot<- function(ident, bar_col = "blue"){
+ClusterSizeBarplot<- function(ident, bar_col = "blue", label_number = TRUE){
         g<- as.data.frame(table(ident)) %>%
                 dplyr::rename(cluster = ident, size = Freq) %>%
                 ggplot(aes(x = cluster, y = size)) +
                 geom_bar(stat = "identity", fill = bar_col) +
-                geom_text(aes(label=size), vjust= -1.5, angle = 45) +
                 theme(axis.text.x = element_text(angle = 45, hjust = 1))
-        returm(g)
+        if (!label_number){
+                return (g)
+
+        } else {
+                g<- g + geom_text(aes(label=size), vjust= -1.5, angle = 45)
+                return (g)
+
+        }
 }
 
 #' Make a Heatmap of the pairwise Jaccard distance between cluster ident of two
@@ -74,7 +81,7 @@ PairWiseJaccardSetsHeatmap<- function(ident1, ident2, best_match = FALSE,
                                         show_column_dend = show_column_dend,
                                         col = col_fun, rect_gp = grid::gpar(type = "none"),
                                         cell_fun = cell_fun,
-                                        name = "Jaccard distance",
+                                        name = "Jaccard index",
                                         column_title = title,
                                         heatmap_legend_param = list(color_bar = "discrete"),
                                         ...)
@@ -133,7 +140,8 @@ JaccardRainCloudPlot<- function(idents1, idents2, title= NULL){
 #' Scatter plot of number of stable clusters across different k
 #' and percentage of cells in stable clusters across different k.
 #'
-#' @param stable_cluster A list of list returned by AssignStableCluster
+#' @param ks_stable A list of list returned by AssignStableCluster
+#' @param ks_idents_original A list of idents of the full data sets for each k
 #'
 #' @return A ggplot object
 #' @export
@@ -145,16 +153,24 @@ JaccardRainCloudPlot<- function(idents1, idents2, title= NULL){
 #'
 #'ks_stable<- purrr::map2(ks_idents_original, ks_idents, ~AssignStableCluster(ident1= .x, idents = .y))
 #'}
-BootParameterScatterPlot<- function(stable_cluster){
-        percent<- purrr::map_dbl(stable_cluster, "percent_cell_in_stable")
-        stable<- purrr::map_dbl(stable_cluster, "number_of_stable_cluster")
-        g<- dplyr::bind_rows(percent, stable) %>%
-                tibble::add_column(parameter = c("percent", "stable_cluster_num")) %>%
+BootParameterScatterPlot<- function(ks_stable, ks_idents_original){
+        stable_clusters<- purrr::map(ks_stable, "stable_cluster")
+        percent<- purrr::map2_dbl(ks_idents_original, stable_clusters, CalculatePercentCellInStable)
+        stable<- purrr::map_dbl(ks_stable, "number_of_stable_cluster")
+        total<- purrr::map_dbl(ks_stable, function(x) length(x$stable_cluster))
+
+        dat<- bind_rows(percent, stable, total) %>%
+                tibble::add_column(parameter = c("percent", "stable_cluster_num", "total_cluster_num")) %>%
                 tidyr::gather(-parameter, key = "bootpar", value= "value" ) %>%
-                ggplot(aes(x = bootpar, y = value)) +
+                dplyr::mutate(bootpar = as.factor(as.numeric(.$bootpar)))
+        g1<- ggplot(dat %>% dplyr::filter(parameter == "percent"), aes(x = bootpar, y = value)) +
                 geom_line(aes(group = parameter, col = parameter)) +
-                geom_point() +
-                facet_wrap(~parameter, scale = "free")
+                geom_point()
+        g2<- ggplot(dat %>% dplyr::filter(parameter != "percent"), aes(x = bootpar, y = value)) +
+                geom_line(aes(group = parameter, col = parameter, linetype = parameter)) +
+                ylab("number") +
+                geom_point()
+        g<- cowplot::plot_grid(g1, g2, nrow = 1)
         return(g)
 
 }

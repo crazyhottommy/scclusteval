@@ -120,6 +120,7 @@ AssignHighestJaccard<- function(idents1, idents2){
                 apply(mat, 1, max)
 
         }
+        # or use the anonymous function
         mat_max<- purrr::map(mat_list, SelectHighestJaccard)
         mats<- purrr::reduce(mat_max, dplyr::bind_rows)
         return(mats)
