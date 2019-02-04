@@ -20,7 +20,7 @@ knitr::include_graphics("man/figures/scclusteval.png")
 ```
 
 The goal of scclusteval(Single Cell Cluster Evaluation) is to evaluate the single cell clustering stability by
-boostrapping the cells and provide many visualization methods for comparing clusters.
+boostrapping/subsampling the cells and provide many visualization methods for comparing clusters.
 
 for Theory behind the method, see Christian Henning, “Cluster-wise assessment of
 cluster stability,” Research Report 271, Dept. of Statistical Science, University 
@@ -33,8 +33,7 @@ which is implemented in `{Seurat::FindClusters}`. See a paper by Mark Robinson g
 single cell RNAseq clustering methods:[A systematic performance evaluation of clustering methods for single-cell RNA-seq data](https://f1000research.com/articles/7-1141/v1)
 SNN in Seurat is the most accurate and fast one.
 
-The parameter `k.param` which specifies the number of nearest neighbors has a great effect on the number
-of clusters.
+The parameter `k.param` which specifies the number of nearest neighbors has a great effect on the number of clusters.
 
 The process is as follows (paraphased from Stephen Eichhorn in Xiaowei Zhuang lab)
 to assess which k is best to use by subsampling the original data:
@@ -45,54 +44,39 @@ to assess which k is best to use by subsampling the original data:
 cells in the full data set), and then repeat the clustering procedure on just 
 this subset of data (so repeating all aspects of clustering, including calling 
 variable genes, calculating PCs, building the neighbor graph, etc), and we do 
-this n (default 20) times. 
+this n times. 
 
 3. So for each K value, we have 1 clustering outcome for the full data set, 
 and 20 clustering outcomes for subsampled portions of the data set. From this we
 identify the cluster in the first subsample clustering that is most similar to 
 the full cluster 1 cells (the one that gives the maximum Jaccard coefficient) and 
-record that value. If this maximum Jaccard coefficient is less than 0.5, the 
-original cluster is considered to be dissolved-it didn’t show up in the new clustering. 
-A cluster that’s dissolved too often is probably not a “real” cluster.
+record that value. If this maximum Jaccard coefficient is less than 0.6 (this is 
+quite subjective), the original cluster is considered to be dissolved-it didn’t 
+show up in the new clustering.  A cluster that’s dissolved too often is probably 
+not a “real” cluster.
 
-
-4. Repeat this for all subsample clustering outcomes, and then the 
-stability value of a cluster is the median or mean Jaccard coefficient. If it's 
-greater than 0.5 we say it's stable, otherwise it's unstable. So for a given K 
-value this gives you a stable/unstable assignment for each cluster. We choose the 
-k value to select for clustering the data by looking at which k value yielded the 
-largest number of stable clusters while still having most of the cells from the 
-data set in a stable cluster. This second condition is important because as you 
-decrease K, you will always get more clusters, and many of them will be stable, 
-but there will also be a huge number of unstable clusters, so a small fraction 
-of the data set will actually be described in stable clusters are these values. 
-
-5. So what we typically see is that as K decreases, we get more stable clusters and no 
-unstable clusters, then you reach a point where you decrease K and you get more stable 
-clusters but also some unstable ones, so ~95% of the data is present in stable clusters, 
-as you go down in K further you get more stable clusters but now something like 70% of 
-the data is present in stable clusters. I choose the k value where at least 90% of the 
-data was in a stable cluster, and the one that yielded the most stable clusters. 
-
-6. This is almost always the smallest K value wherein at least 90% of the data was stable, 
-but occasionally you see idiosyncratic behaviors from a particular k value, so it 
-wouldn't be unheard of to see something where k=10 and k=8 were both >90% with respect 
-to data in stable clusters, but k=10 had more stable clusters. In general we end up 
-selecting k values around 8-12 in most cases.
-
-
-As a rule of thumb, clusters with a stability value less than 0.6 should be considered 
+>As a rule of thumb, clusters with a stability value less than 0.6 should be considered 
 unstable. Values between 0.6 and 0.75 indicate that the cluster is measuring a pattern 
 in the data, but there isn’t high certainty about which points should be clustered 
 together. Clusters with stability values above about 0.85 can be considered highly 
 stable (they’re likely to be real clusters).
+
+
+4. Repeat this for all subsample clustering outcomes, and then the 
+stability value of a cluster is the median or mean Jaccard coefficient. If it's 
+greater than 0.6 (or a cutoff you set) we say it's stable, otherwise it's unstable. 
+So for a given K value this gives you a stable/unstable assignment for each cluster.
+We choose the  k value to select for clustering the data by looking at which k value 
+yielded the largest number of stable clusters while still having most of the cells from the 
+data set in a stable cluster. 
+
 
 ## Installation
 
 You can install the scclusteval from github:  
 
 ``` r
-devtools::install_github("crazyhottommy/scclusteval", auth_token="aa791fd9c20a5cb9205774df9c7a78f63fef9c2c")
+devtools::install_github("crazyhottommy/scclusteval")
 ```
 
 
@@ -126,68 +110,137 @@ Find the Snakemake workflow [scBootClusterSeurat](https://github.com/crazyhottom
 
 ## Example
 
-This is a basic example which shows you some useful functions in the package :
+This is a basic example which shows you some useful functions in the package.
 
-```{r example}
-ks_idents<- readRDS("~/gather_bootstrap_k.rds")
+The `rds` can be downloaded from
 
-k_20_seurat<- readRDS("~/bootstrap_k_preprocess/bootstrap_k_20.rds")
-k_25_seurat<- readRDS("~/bootstrap_k_preprocess/bootstrap_k_25.rds")
-k_30_seurat<- readRDS("~/bootstrap_k_preprocess/bootstrap_k_30.rds")
-k_35_seurat<- readRDS("~/bootstrap_k_preprocess/bootstrap_k_35.rds")
+the 3k pmbc data set is the same as used in the `Seurat` tutorial. I subsampled
+80% of the cells, and recluster for 100 times for 10 different ks =6,8,10,12,14,16,20,25,30,35.
+for total 1000 runs and recorded the cell identities before and after reclustering into 
+a list. The whole process was done by the Snakemake workflow: [scBootClusterSeurat](https://github.com/crazyhottommy/scBootClusterSeurat).
 
-ks_idents_original<- list(k_20_seurat@ident, k_25_seurat@ident, k_30_seurat@ident, k_35_seurat@ident)
-names(ks_idents_original)<- c("k20", "k25", "k30", "k35")
-```
-
-### explore the cluster relationship between different runs 
 ```{r}
-## cluster7 and cluster 8 from k20 is the same cluster7 from k25
-PairWiseJaccardSetsHeatmap(k_20_seurat@ident, k_25_seurat@ident,
+library(tidyverse)
+library(scclusteval)
+library(here)
+
+ks_idents_original<- readRDS("~/Downloads/ks_pbmc_original_idents.rds")
+
+PairWiseJaccardSetsHeatmap(ks_idents_original$`6`, ks_idents_original$`8`,
                            show_row_dend = F, show_column_dend = F,
                            cluster_row = F, cluster_column =F)
 
+PairWiseJaccardSetsHeatmap(ks_idents_original$`30`, ks_idents_original$`8`,
+                           show_row_dend = F, show_column_dend = F,
+                           cluster_row = F, cluster_column =F)
+
+PairWiseJaccardSetsHeatmap(ks_idents_original$`30`, ks_idents_original$`35`,
+                           show_row_dend = F, show_column_dend = F,
+                           cluster_row = F, cluster_column =F)
+
+## cluster number for each k
+lapply(ks_idents_original, function(x) length(unique(x)))
+
 ## how many cells identity change from one cluster to another
-ClusterIdentityChordPlot(k_20_seurat@ident, k_25_seurat@ident)
+ClusterIdentityChordPlot(ks_idents_original$`10`, ks_idents_original$`30`)
+
+## cluster size plot
+ClusterSizeBarplot(ks_idents_original$`30`)
 ```
 
+### for the subsampled data set
+
+```{r}
+# a list of lists, 10 different ks
+ks_idents<- readRDS("~/Downloads/gather_bootstrap_k.rds")
+length(ks_idents)
+lapply(ks_idents, length)
+
+ks_idents_original_subsample<- ks_idents$original_idents
+ks_idents_recluster_subsample<- ks_idents$idents
+
+lapply(ks_idents_original_subsample, length)
+lapply(ks_idents_recluster_subsample, length)
+
+## check for one of the subsample experiment for k=10, the cell identities 
+## should be the same before and after clustering, but the cluster identities 
+## should be different
+
+identical(names(ks_idents_original_subsample$`30`[[1]]), names(ks_idents_recluster_subsample$`30`[[1]]))
+
+
+table(ks_idents_original_subsample$`30`[[1]])
+table(ks_idents_recluster_subsample$`30`[[1]])
+
+identical(names(ks_idents_original_subsample$`10`[[100]]),  names(ks_idents_recluster_subsample$`10`[[100]]))
+
+table(ks_idents_original_subsample$`10`[[100]])
+table(ks_idents_recluster_subsample$`10`[[100]])
+
+```
 
 ### Jaccard Raincloud plot for different Ks
 
 ```{r}
-JaccardRainCloudPlot(k_20_seurat@ident, ks_idents$`20`) + 
-        geom_hline(yintercept = c(0.4, 0.8), linetype = 2) +
+# can take ~30 seconds for 80 clusters
+JaccardRainCloudPlot(ks_idents_original_subsample$`6`, ks_idents_recluster_subsample$`6`) + 
+        geom_hline(yintercept = c(0.6, 0.75), linetype = 2) +
+        ggtitle("k=6")
+
+JaccardRainCloudPlot(ks_idents_original_subsample$`8`, ks_idents_recluster_subsample$`8`) + 
+        geom_hline(yintercept = c(0.6, 0.75), linetype = 2) +
+        ggtitle("k=8")
+
+JaccardRainCloudPlot(ks_idents_original_subsample$`10`, ks_idents_recluster_subsample$`10`) + 
+        geom_hline(yintercept = c(0.6, 0.75), linetype = 2) +
+        ggtitle("k=10")
+
+JaccardRainCloudPlot(ks_idents_original_subsample$`12`, ks_idents_recluster_subsample$`12`) + 
+        geom_hline(yintercept = c(0.6, 0.75), linetype = 2) +
+        ggtitle("k=12")
+
+JaccardRainCloudPlot(ks_idents_original_subsample$`14`, ks_idents_recluster_subsample$`14`) + 
+        geom_hline(yintercept = c(0.6, 0.75), linetype = 2) +
+        ggtitle("k=14")
+
+JaccardRainCloudPlot(ks_idents_original_subsample$`16`, ks_idents_recluster_subsample$`16`) + 
+        geom_hline(yintercept = c(0.6, 0.75), linetype = 2) +
+        ggtitle("k=16")
+
+JaccardRainCloudPlot(ks_idents_original_subsample$`20`, ks_idents_recluster_subsample$`20`) + 
+        geom_hline(yintercept = c(0.6, 0.75), linetype = 2) +
         ggtitle("k=20")
 
-JaccardRainCloudPlot(k_25_seurat@ident, ks_idents$`25`) + 
-        geom_hline(yintercept = c(0.4, 0.8), linetype = 2) +
+JaccardRainCloudPlot(ks_idents_original_subsample$`25`, ks_idents_recluster_subsample$`25`) + 
+        geom_hline(yintercept = c(0.6, 0.75), linetype = 2) +
         ggtitle("k=25")
 
-JaccardRainCloudPlot(k_30_seurat@ident, ks_idents$`30`) + 
-        geom_hline(yintercept = c(0.4, 0.8), linetype = 2) +
+JaccardRainCloudPlot(ks_idents_original_subsample$`30`, ks_idents_recluster_subsample$`30`) + 
+        geom_hline(yintercept = c(0.6, 0.75), linetype = 2) +
         ggtitle("k=30")
 
-JaccardRainCloudPlot(k_35_seurat@ident, ks_idents$`35`) + 
-        geom_hline(yintercept = c(0.4, 0.8), linetype = 2) +
+JaccardRainCloudPlot(ks_idents_original_subsample$`35`, ks_idents_recluster_subsample$`35`) + 
+        geom_hline(yintercept = c(0.6, 0.75), linetype = 2) +
         ggtitle("k=35")
+
+# purrr::map2(ks_idents_original_subsample, ks_idents_recluster_subsample, JaccardRainCloudPlot)
 ```
 
 ### How many stable cluster and percentage of cells for each K
 
-```{r}
-## for one K
-AssignStableCluster(ks_idents_original$k20, ks_idents$`20`)
+```{r, out.width = "100%", out.height = "60%"}
+## for one K, take ~20 seconds
+AssignHighestJaccard(ks_idents_original_subsample$`30`, ks_idents_recluster_subsample$`30`)
 
-## for all Ks
-ks_stable<- purrr::map2(ks_idents_original, ks_idents, ~AssignStableCluster(ident1= .x, idents = .y))
+k30_stable<- AssignStableCluster(ks_idents_original_subsample$`30`, ks_idents_recluster_subsample$`30`, cutoff = 0.6)
 
-## access different Ks
-ks_stable$k25
+CalculatePercentCellInStable(ks_idents_original$`30`, k30_stable$stable_cluster)
+## for all Ks, 10 different ks, 200 seconds. think about how to speed up.
+ks_stable<- purrr::map2(ks_idents_original_subsample, ks_idents_recluster_subsample, ~AssignStableCluster(idents1= .x, idents2 = .y, cutoff = 0.6))
 
-BootParameterScatterPlot(ks_stable)
-        
+BootParameterScatterPlot(ks_stable = ks_stable, ks_idents_original = ks_idents_original)
+
 ```
-
 
 ## Acknowledgements
 
@@ -199,17 +252,22 @@ Thanks to Sophia(Zhengzheng) Liang in Dulac lab for sharing data and giving feed
 
 ## Why this package?
 
-fpc package `clusterboot`. 
+I saw `{fpc}` package has a function `clusterboot`. However, this function does not support
+SNN clustering. Although one can write a customer clustering function to feed into clusterboot, 
+I need to build things upon `Seurat` package and those two can not be easilily integrated. In
+addition, `clusterboot` is not parallelized, I have to implement the `snakemake` workflow for faster
+processing.
 
 read this blog post http://www.win-vector.com/blog/2015/09/bootstrap-evaluation-of-clusters/
 and https://www.czasopisma.uni.lodz.pl/foe/article/view/983
 
+
 ## To do list
 
 * adding checks for all functions. `stop` messages.
-* implement more visualization functions.
+* implement more visualization functions. 
+* plot number of cells subsampled for each cluster in each iteration in raincloudplot.
 * impurity metric for assessing cluster stability.
-* plot number of clusters in each iteration.
 * read this post from Jean Fan from Xiaowei Zhuang's lab https://jef.works/blog/2018/02/28/stability-testing/
 `getComMembership` function works on raw data matrix. It can be used independent of Seurat's `FindClusters`. chat with Jean for more details.
 * gene sets enrichment for each cluster.
