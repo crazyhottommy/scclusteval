@@ -5,10 +5,12 @@
 \title{Scatter plot of number of stable clusters across different k
 and percentage of cells in stable clusters across different k.}
 \usage{
-BootParameterScatterPlot(stable_cluster)
+BootParameterScatterPlot(ks_stable, ks_idents_original)
 }
 \arguments{
-\item{stable_cluster}{A list of list returned by AssignStableCluster}
+\item{ks_stable}{A list of list returned by AssignStableCluster}
+
+\item{ks_idents_original}{A list of idents of the full data sets for each k}
 }
 \value{
 A ggplot object

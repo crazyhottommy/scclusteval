@@ -4,13 +4,15 @@
 \alias{ClusterSizeBarplot}
 \title{Make a Barplot for cluster size}
 \usage{
-ClusterSizeBarplot(ident, bar_col = "blue")
+ClusterSizeBarplot(ident, bar_col = "blue", label_number = TRUE)
 }
 \arguments{
 \item{ident}{a named factor vector. names are the cell names, the values are
 the cluster id.}
 
 \item{bar_col}{color for the bar. Default is blue.}
+
+\item{label_number}{whether or not put cell number in each cluster on top of the bar}
 }
 \value{
 a ggplot2 bar graph object

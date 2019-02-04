@@ -4,7 +4,7 @@
 \alias{AssignStableCluster}
 \title{Assign stable cluster}
 \usage{
-AssignStableCluster(idents1, idents2, method = median, cutoff = 0.4)
+AssignStableCluster(idents1, idents2, method = median, cutoff = 0.6)
 }
 \arguments{
 \item{idents1}{A list of cluster identity copied from the orginal data sets.

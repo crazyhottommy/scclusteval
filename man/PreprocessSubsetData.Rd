@@ -5,9 +5,9 @@
 \title{A wrapper for preprocessing subsetted Seurat object}
 \usage{
 PreprocessSubsetData(object, x.low.cutoff = 0.05, x.high.cutoff = 10,
-  y.cutoff = 0.5, num.pc = 20, do.par = TRUE, num.cores = 2,
-  score.thresh = 1e-05, sig.pc.thresh = 0.05, n.start = 100,
-  nn.eps = 0, resolution = 0.8, k.param = 30, ...)
+  y.cutoff = 0.5, num.pc = 20, pc.use = NULL, do.par = TRUE,
+  num.cores = 2, score.thresh = 1e-05, sig.pc.thresh = 0.05,
+  n.start = 100, nn.eps = 0, resolution = 0.8, k.param = 30, ...)
 }
 \arguments{
 \item{object}{A subsetted Seurat object created by RandomSubsetData}
@@ -20,7 +20,11 @@ PreprocessSubsetData(object, x.low.cutoff = 0.05, x.high.cutoff = 10,
 
 \item{num.pc}{number of PCs to calculate in RunPCA, JackStraw and JackStrawPlot
 step. The optimal PCs for FindClusters will be determined by only significant PCs
-from JackStrawPlot.}
+from JackStrawPlot or if pc.use is set, JackStraw step will be skipped and use pc.use
+for FindClusters.}
+
+\item{pc.use}{number of PCs used for FindClusters. if pc.use is set, JackStraw step
+will be skipped and use pc.use for FindClusters. score.thresh and sig.pc.thresh will be ignored.}
 
 \item{do.par}{use parallel processing for regressing out variables faster.
 If set to TRUE, will use half of the machines available cores. see JackStraw.}
