@@ -112,7 +112,7 @@ Find the Snakemake workflow [scBootClusterSeurat](https://github.com/crazyhottom
 
 This is a basic example which shows you some useful functions in the package.
 
-The `rds` can be downloaded from
+The `rds` in this example can be downloaded from https://osf.io/4c9h2/
 
 the 3k pmbc data set is the same as used in the `Seurat` tutorial. I subsampled
 80% of the cells, and recluster for 100 times for 10 different ks =6,8,10,12,14,16,20,25,30,35.
