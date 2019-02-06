@@ -170,7 +170,7 @@ BootParameterScatterPlot<- function(ks_stable, ks_idents_original){
                 geom_line(aes(group = parameter, col = parameter, linetype = parameter)) +
                 ylab("number") +
                 geom_point()
-        g<- cowplot::plot_grid(g1, g2, nrow = 2)
+        g<- cowplot::plot_grid(g1, g2, nrow = 2, align = "v")
         return(g)
 
 }
