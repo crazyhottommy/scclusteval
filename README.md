@@ -453,7 +453,7 @@ ks_stable<- purrr::map2(ks_idents_original_subsample, ks_idents_recluster_subsam
 BootParameterScatterPlot(ks_stable = ks_stable, ks_idents_original = ks_idents_original)
 ```
 
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" height="60%" />
+<img src="man/figures/README-unnamed-chunk-5-1.png" width="80%" height="60%" />
 
 ## Acknowledgements
 

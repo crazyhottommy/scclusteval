@@ -228,7 +228,7 @@ JaccardRainCloudPlot(ks_idents_original_subsample$`35`, ks_idents_recluster_subs
 
 ### How many stable cluster and percentage of cells for each K
 
-```{r, out.width = "100%", out.height = "60%"}
+```{r, out.width = "80%", out.height = "60%"}
 ## for one K, take ~20 seconds
 AssignHighestJaccard(ks_idents_original_subsample$`30`, ks_idents_recluster_subsample$`30`)
 
