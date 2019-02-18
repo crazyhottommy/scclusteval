@@ -119,6 +119,8 @@ the 3k pmbc data set is the same as used in the `Seurat` tutorial. I subsampled
 for total 1000 runs and recorded the cell identities before and after reclustering into 
 a list. The whole process was done by the Snakemake workflow: [scBootClusterSeurat](https://github.com/crazyhottommy/scBootClusterSeurat).
 
+If you have clustered the SAME dataset using different parameters, you can use
+`PairWiseJaccardSetsHeatmap` to see which clusters are corresponding to each other.
 ```{r}
 library(tidyverse)
 library(scclusteval)
@@ -239,7 +241,6 @@ CalculatePercentCellInStable(ks_idents_original$`30`, k30_stable$stable_cluster)
 ks_stable<- purrr::map2(ks_idents_original_subsample, ks_idents_recluster_subsample, ~AssignStableCluster(idents1= .x, idents2 = .y, cutoff = 0.6))
 
 BootParameterScatterPlot(ks_stable = ks_stable, ks_idents_original = ks_idents_original)
-
 ```
 
 ## Acknowledgements
@@ -249,6 +250,7 @@ Thanks to Yasin Kaymaz in Sackton group for fruitful discussion.
 Thanks to Stephen Eichhorn in Xiaowei Zhuang lab for the idea and sharing the python code working
 on [Scanpy](https://github.com/theislab/scanpy) object.  
 Thanks to Sophia(Zhengzheng) Liang in Dulac lab for sharing data and giving feedbacks.
+Thanks [David Robinson](https://twitter.com/drob)'s `geomflatviolin` function which was used in the `raincloudplot`.
 
 ## Why this package?
 

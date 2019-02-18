@@ -127,6 +127,10 @@ recorded the cell identities before and after reclustering into a list.
 The whole process was done by the Snakemake workflow:
 [scBootClusterSeurat](https://github.com/crazyhottommy/scBootClusterSeurat).
 
+If you have clustered the SAME dataset using different parameters, you
+can use `PairWiseJaccardSetsHeatmap` to see which clusters are
+corresponding to each other.
+
 ``` r
 library(tidyverse)
 #> ── Attaching packages ──────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──
@@ -464,7 +468,8 @@ Thanks to Stephen Eichhorn in Xiaowei Zhuang lab for the idea and
 sharing the python code working on
 [Scanpy](https://github.com/theislab/scanpy) object.  
 Thanks to Sophia(Zhengzheng) Liang in Dulac lab for sharing data and
-giving feedbacks.
+giving feedbacks. Thanks [David Robinson](https://twitter.com/drob)’s
+`geomflatviolin` function which was used in the `raincloudplot`.
 
 ## Why this package?
 
