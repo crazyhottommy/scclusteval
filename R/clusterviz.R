@@ -165,6 +165,7 @@ BootParameterScatterPlot<- function(ks_stable, ks_idents_original){
                 dplyr::mutate(bootpar = as.factor(as.numeric(.$bootpar)))
         g1<- ggplot(dat %>% dplyr::filter(parameter == "percent"), aes(x = bootpar, y = value)) +
                 geom_line(aes(group = parameter, col = parameter)) +
+                scale_y_continuous(labels = scales::percent) +
                 geom_point()
         g2<- ggplot(dat %>% dplyr::filter(parameter != "percent"), aes(x = bootpar, y = value)) +
                 geom_line(aes(group = parameter, col = parameter, linetype = parameter)) +
