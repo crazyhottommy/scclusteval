@@ -19,7 +19,8 @@ Imports:
     magrittr,
     BiocParallel,
     future.apply,
-    ComplexHeatmap
+    ComplexHeatmap,
+    ggplot2
 Suggests:
     spelling,
     knitr,

@@ -50,7 +50,7 @@ geom_flat_violin <- function(mapping = NULL, data = NULL, stat = "ydensity",
 
 
 GeomFlatViolin <-
-        ggproto("GeomFlatViolin", Geom,
+        ggplot2::ggproto("GeomFlatViolin", ggplot2::Geom,
                 setup_data = function(data, params) {
                         data$width <- data$width %||%
                                 params$width %||% (resolution(data$x, FALSE) * 0.9)
@@ -81,9 +81,9 @@ GeomFlatViolin <-
                         ggplot2:::ggname("geom_flat_violin", GeomPolygon$draw_panel(newdata, panel_scales, coord))
                 },
 
-                draw_key = draw_key_polygon,
+                draw_key = ggplot2::draw_key_polygon,
 
-                default_aes = aes(weight = 1, colour = "grey20", fill = "white", size = 0.5,
+                default_aes = ggplot2::aes(weight = 1, colour = "grey20", fill = "white", size = 0.5,
                                   alpha = NA, linetype = "solid"),
 
                 required_aes = c("x", "y")
