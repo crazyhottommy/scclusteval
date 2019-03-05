@@ -61,7 +61,7 @@ PreprocessSubsetData<- function(object,
                                    x.low.cutoff = x.low.cutoff,
                                    x.high.cutoff = x.high.cutoff,
                                    y.cutoff = y.cutoff)
-        meta.data.rownames<- object@meta.data %>% rownames()
+        meta.data.colames<- object@meta.data %>% colnames()
         vars.to.regress<- c("percent.mito","nUMI")
         # in case the seurat object does not have percent.mito in metadata
         vars.to.regress<- vars.to.regress[vars.to.regress %in% meta.data.colnames]
