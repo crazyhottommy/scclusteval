@@ -65,19 +65,20 @@ PreprocessSubsetData<- function(object,
         vars.to.regress<- c("percent.mito","nUMI")
         # in case the seurat object does not have percent.mito in metadata
         vars.to.regress<- vars.to.regress[vars.to.regress %in% meta.data.colnames]
-        object<- ScaleData(object = object, genes.use = object@var.genes,
+        # default is on variable features only, omit the features argument
+        object<- ScaleData(object = object,
                            vars.to.regress = vars.to.regress, block.size = 1000,
                            min.cells.to.block=3000,
                            display.progress = TRUE, do.par = TRUE, num.cores = num.cores)
 
-        object<- RunPCA(object = object, pc.genes = object@var.genes,
-                        pcs.compute = num.pc, do.print = FALSE)
+        object<- RunPCA(object = object, features = VariableFeatures(object = object),
+                        npcs = num.pc, do.print = FALSE)
 
         if (is.null(pc.use)){
                 object<- JackStraw( object = object, num.replicate = 100, num.cores = num.cores,
-                                    do.par = T, num.pc = num.pc)
+                                    do.par = T, dims = num.pc)
 
-                object <- JackStrawPlot(object = object, PCs = 1:num.pc, score.thresh = score.thresh)
+                object <- JackStrawPlot(object = object, dims = 1:num.pc, score.thresh = score.thresh)
 
                 PC_pvalues<- object@dr$pca@jackstraw@overall.p.values
 
