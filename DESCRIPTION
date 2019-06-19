@@ -31,4 +31,4 @@ URL: https://github.com/crazyhottommy/scclusteval
 BugReports: https://github.com/crazyhottommy/scclusteval/issues
 VignetteBuilder: knitr
 Depends:
-    Seurat (< 3.0.0)
+    Seurat
