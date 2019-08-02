@@ -4,19 +4,15 @@
 \alias{PreprocessSubsetData}
 \title{A wrapper for preprocessing subsetted Seurat object}
 \usage{
-PreprocessSubsetData(object, x.low.cutoff = 0.05, x.high.cutoff = 10,
-  y.cutoff = 0.5, num.pc = 20, pc.use = NULL, do.par = TRUE,
-  num.cores = 2, score.thresh = 1e-05, sig.pc.thresh = 0.05,
-  n.start = 100, nn.eps = 0, resolution = 0.8, k.param = 30, ...)
+PreprocessSubsetData(object, variable.features.n = 3000, num.pc = 20,
+  pc.use = NULL, workers = 2, score.thresh = 1e-05,
+  sig.pc.thresh = 0.05, n.start = 100, nn.eps = 0,
+  resolution = 0.8, k.param = 30, ...)
 }
 \arguments{
 \item{object}{A subsetted Seurat object created by RandomSubsetData}
 
-\item{x.low.cutoff}{Bottom cutoff on x-axis for identifying variable genes}
-
-\item{x.high.cutoff}{Top cutoff on x-axis for identifying variable genes}
-
-\item{y.cutoff}{Bottom cutoff on y-axis for identifying variable genes}
+\item{variable.features.n}{number of variable features for \code{\link[Seurat]{SCTransform}}}
 
 \item{num.pc}{number of PCs to calculate in RunPCA, JackStraw and JackStrawPlot
 step. The optimal PCs for FindClusters will be determined by only significant PCs
@@ -26,13 +22,7 @@ for FindClusters.}
 \item{pc.use}{number of PCs used for FindClusters. if pc.use is set, JackStraw step
 will be skipped and use pc.use for FindClusters. score.thresh and sig.pc.thresh will be ignored.}
 
-\item{do.par}{use parallel processing for regressing out variables faster.
-If set to TRUE, will use half of the machines available cores. see JackStraw.}
-
-\item{num.cores}{If do.par = TRUE, specify the number of cores to use.
-Note that for higher number of cores, larger free memory is needed.
-If num.cores = 1 and do.par = TRUE, num.cores will be set to half of all
-available cores on the machine. see JackStraw.}
+\item{workers}{number of CPUs to use for \code{\link[future]{plan}} parallel processing}
 
 \item{score.thresh}{Threshold to use for the proportion test of PC significance.}
 
@@ -48,7 +38,7 @@ default of 0.0 implies exact nearest neighbor search. See FindClusters.}
 
 \item{k.param}{Defines k for the k-nearest neighbor algorithm.}
 
-\item{...}{any other parameters for FindVariableGenes}
+\item{...}{any other parameters}
 }
 \value{
 a fully processed Seurat object

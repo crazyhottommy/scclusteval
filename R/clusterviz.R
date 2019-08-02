@@ -94,7 +94,7 @@ PairWiseJaccardSetsHeatmap<- function(ident1, ident2, best_match = FALSE,
                                         show_column_dend = show_column_dend,
                                         col = col_fun, rect_gp = grid::gpar(type = "none"),
                                         cell_fun = cell_fun,
-                                        name = "Jaccard distance",
+                                        name = "Jaccard index",
                                         column_title = title,
                                         heatmap_legend_param = list(color_bar = "discrete"),
                                         ...)

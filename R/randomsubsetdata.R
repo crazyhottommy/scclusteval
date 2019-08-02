@@ -3,8 +3,7 @@
 #' @param object Seurat object
 #' @param rate a number betwee 0-1 for subsetting
 #' @param random.subset.seed set a random seed for sampling, default is NULL.
-#' @param do.clean subset the seurat object in a clean way, include the raw.data
-#' @param ... any other parameters to SubsetData from Seurat package
+#' @param ... any other parameters to \code{\link[Seurat]{subset}}
 #'
 #' @return Returns a randomly subsetted seurat object
 #' @export
@@ -16,15 +15,16 @@
 #'
 #'
 # read this issue https://github.com/satijalab/seurat/issues/243
-# I have to do set.seed(NULL) to make it truly random.
-RandomSubsetData<- function(object, rate, random.subset.seed = NULL, do.clean = TRUE, ...){
+# Seurat V3 does not have do.clean =T any more
+# see https://github.com/satijalab/seurat/issues/1792 use DietSeurat
+RandomSubsetData<- function(object, rate, random.subset.seed = NULL, ...){
         ncells<- nrow(object@meta.data)
         ncells.subsample<- round(ncells * rate)
 
         set.seed(random.subset.seed)
 
-        selected.cells<- sample(object@cell.names, ncells.subsample)
-        object<- SubsetData(object, cells.use =  selected.cells, do.clean = do.clean,
+        selected.cells<- sample(colnames(object), ncells.subsample)
+        object<- subset(object, cells =  selected.cells,
                             ...)
         return(object)
 }
