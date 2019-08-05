@@ -50,7 +50,7 @@ PreprocessSubsetData<- function(object,
         ## use future for parallelization
         future::plan("multiprocess", workers = workers)
         meta.data.colnames<- object@meta.data %>% colnames()
-        vars.to.regress<- c("percent.mito","nFeature_RNA")
+        vars.to.regress<- c("percent.mt","nFeature_RNA")
         # in case the seurat object does not have percent.mito in metadata
         vars.to.regress<- vars.to.regress[vars.to.regress %in% meta.data.colnames]
         # default is on variable features only, omit the features argument
