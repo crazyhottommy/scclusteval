@@ -50,7 +50,8 @@ PreprocessSubsetDataV2<- function(object,
         vars.to.regress<- c("percent.mt","nFeature_RNA")
         # in case the seurat object does not have percent.mito in metadata
         vars.to.regress<- vars.to.regress[vars.to.regress %in% meta.data.colnames]
-        object<- FindVariableFeatures(object, selection.method = "vst", nfeatures = nfeatures)
+        # no need to use this for the integrated data
+        #object<- FindVariableFeatures(object, selection.method = "vst", nfeatures = nfeatures)
         object<- ScaleData(object)
 
         object<- RunPCA(object = object, features = VariableFeatures(object = object),
