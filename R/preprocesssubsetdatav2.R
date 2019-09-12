@@ -1,5 +1,4 @@
-
-#' A wrapper for preprocessing subsetted Seurat object
+#' A wrapper for preprocessing subsetted Seurat object using ScaleData
 #'
 #' The wrapper does FindVeriableGenes, ScaleData, RunPCA, JackStraw to
 #' determine how many PCs to use, ProjectPCA and FindClusters and retrun
@@ -35,8 +34,8 @@
 #' pbmc_small_subset_processed@meta.data
 
 
-PreprocessSubsetData<- function(object,
-                                variable.features.n = 3000,
+PreprocessSubsetDataV2<- function(object,
+                                nfeatures = 2000,
                                 num.pc = 20,
                                 pc.use = NULL,
                                 workers = 2,
@@ -47,16 +46,13 @@ PreprocessSubsetData<- function(object,
                                 resolution = 0.8,
                                 k.param = 30,
                                 ...){
-        ## use future for parallelization
-        future::plan("multiprocess", workers = workers)
         meta.data.colnames<- object@meta.data %>% colnames()
         vars.to.regress<- c("percent.mt","nFeature_RNA")
         # in case the seurat object does not have percent.mito in metadata
         vars.to.regress<- vars.to.regress[vars.to.regress %in% meta.data.colnames]
-        # default is on variable features only, omit the features argument
-        # SCTransform replaces NormalizeData, ScaleData and FindVariableFeatures
-        object<- SCTransform(object, vars.to.regress = vars.to.regress,
-                             variable.features.n = variable.features.n, verbose = FALSE)
+        # no need to use this for the integrated data
+        #object<- FindVariableFeatures(object, selection.method = "vst", nfeatures = nfeatures)
+        object<- ScaleData(object)
 
         object<- RunPCA(object = object, features = VariableFeatures(object = object),
                         npcs = num.pc)
@@ -80,8 +76,8 @@ PreprocessSubsetData<- function(object,
         object<- FindNeighbors(object, dims = 1:pc.use, k.param = k.param, nn.eps = nn.eps,
                                verbose = FALSE, reduction = "pca", force.recalc = TRUE)
         object <- FindClusters(object = object,
-                                n.start = n.start,
-                                resolution = resolution,
-                                verbose = FALSE)
+                               n.start = n.start,
+                               resolution = resolution,
+                               verbose = FALSE)
         return(object)
 }
