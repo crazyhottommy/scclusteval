@@ -21,7 +21,8 @@ Imports:
     BiocParallel,
     future.apply,
     ComplexHeatmap,
-    ggplot2
+    ggplot2,
+    cluster
 Suggests:
     spelling,
     knitr,

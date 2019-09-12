@@ -226,3 +226,25 @@ ClusterIdentityChordPlot<- function(ident1, ident2,
                                directional = directional)
         circlize::circos.clear()
 }
+
+
+#' Plot raincloud plot for silhouette score
+#'
+#' @param silhouette_score a dataframe returned by \code{link[CalculateSilhouette]}
+#'
+#' @return a ggplot2 object
+#' @export
+#'
+#' @examples
+#'
+#' SilhouetteRainCloudPlot(CalculateSilhouette(pbmc_small, dims = 1:15))
+SilhouetteRainCloudPlot<- function(silhouette_score){
+                g<- ggplot(silhouette_score, aes(x = cluster, y = width, fill = cluster)) +
+                geom_flat_violin(position = position_nudge(x = .2, y = 0), alpha = .8) +
+                geom_point(aes(y = width, color = cluster), position = position_jitter(width = .15), size = .5,
+                           alpha = 0.8) +
+                geom_boxplot(width = .1, outlier.shape = NA, alpha = 0.5) +
+                theme(legend.position="none") +
+                ggtitle("silhoette width for clusters")
+                return(g)
+}
