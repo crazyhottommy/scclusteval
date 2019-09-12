@@ -75,7 +75,7 @@ PreprocessSubsetDataV2<- function(object,
         object<- AddMetaData(object = object, metadata = pc.use.meta, col.name = "pc.use")
         object<- FindNeighbors(object, dims = 1:pc.use, k.param = k.param, nn.eps = nn.eps,
                                verbose = FALSE, reduction = "pca", force.recalc = TRUE)
-        object <- FindClusters(object = object, reduction.type = "pca",
+        object <- FindClusters(object = object,
                                n.start = n.start,
                                resolution = resolution,
                                verbose = FALSE)
