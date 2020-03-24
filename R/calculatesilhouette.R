@@ -19,7 +19,9 @@ CalculateSilhouette<- function(object, dims = 1:50){
         # or as.integer
         cell_cluster<- as.numeric(as.character(Idents(object)))
         silhouette_score<- cluster::silhouette(cell_cluster, cell_distance)
-        silhouette_score<- tibble::tibble(cluster = silhouette_score[,1], width = silhouette_score[,3]) %>%
+        silhouette_score<- tibble::tibble(cluster = silhouette_score[,1],
+                                          width = silhouette_score[,3],
+                                          cell = colnames(object)) %>%
                 mutate(cluster = as.factor(cluster))
         return(silhouette_score)
 }

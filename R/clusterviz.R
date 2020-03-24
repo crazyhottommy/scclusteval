@@ -16,14 +16,14 @@
 ClusterSizeBarplot<- function(ident, bar_col = "blue", label_number = TRUE){
         g<- as.data.frame(table(ident)) %>%
                 dplyr::rename(cluster = ident, size = Freq) %>%
-                ggplot(aes(x = cluster, y = size)) +
-                geom_bar(stat = "identity", fill = bar_col) +
-                theme(axis.text.x = element_text(angle = 45, hjust = 1))
+                ggplot2::ggplot(aes(x = cluster, y = size)) +
+                ggplot2::geom_bar(stat = "identity", fill = bar_col) +
+                ggplot2::theme(axis.text.x = element_text(angle = 45, hjust = 1))
         if (!label_number){
                 return (g)
 
         } else {
-                g<- g + geom_text(aes(label=size), vjust= -1.5, angle = 45)
+                g<- g + ggplot2::geom_text(aes(label=size), vjust= -1.5, angle = 45)
                 return (g)
 
         }
@@ -128,52 +128,80 @@ JaccardRainCloudPlot<- function(idents1, idents2, title= NULL){
         g<- mats %>% tibble::as_tibble() %>% tibble::rownames_to_column(var = "bootstrap")  %>%
                 tidyr::gather(-bootstrap, key= "cluster", value = "jaccard") %>%
                 dplyr::mutate(cluster = as.factor(as.numeric(.$cluster))) %>%
-                ggplot(aes(x = cluster, y = jaccard, fill = cluster)) +
+                ggplot2::ggplot(aes(x = cluster, y = jaccard, fill = cluster)) +
                 geom_flat_violin(position = position_nudge(x = .2, y = 0), alpha = .8) +
-                geom_point(aes(y = jaccard, color = cluster), position = position_jitter(width = .15), size = .5, alpha = 0.8) +
-                geom_boxplot(width = .1, outlier.shape = NA, alpha = 0.5) +
-                theme(legend.position="none") +
-                ggtitle(title)
+                ggplot2::geom_point(aes(y = jaccard, color = cluster), position = position_jitter(width = .15), size = .5, alpha = 0.8) +
+                ggplot2::geom_boxplot(width = .1, outlier.shape = NA, alpha = 0.5) +
+                ggplot2::theme_classic() +
+                ggplot2::theme(legend.position="none") +
+                ggplot2::ggtitle(title)
         return(g)
 }
 
 
-#' Scatter plot of number of stable clusters across different k
-#' and percentage of cells in stable clusters across different k.
+#' Plot a scatter plot for different clustering parameters
 #'
-#' @param ks_stable A list of list returned by AssignStableCluster
-#' @param ks_idents_original A list of idents of the full data sets for each k
+#' x-axis is the parameters tested (e.g. many different k.param)
+#' y-axis is the total number of clusters and total number of stable clusters based
+#' on the jaccard cutoff as determined by AssignStableClusters, or precentage of cells
+#' in stable clusters.
 #'
-#' @return A ggplot object
+#' @param stable_clusters a dataframe with list-columns for data, stable_cluster determined by
+#' \code{\link{AssignStableCluster}} and the rest of the columns are pc, resolution and k_param.
+#' @param fullsample_idents a dataframe with the list-column contain the original ident for
+#' the full dataset. This is the direct output from the Snakemake workflow.
+#' @param x_var one of "pc", "resolution" and "k_param".
+#' @param y_var one of "number" or "percentage". If it is "number",
+#' y-axis si the total number of clusters and total number of stable clusters.
+#' @param facet_rows one of "pc", "resolution" and "k_param" for ggplot2 to facet.
+#' @param facet_cols one of "pc", "resolution" and "k_param" for ggplot2 to facet.
+#'
+#' @return a ggplot2 object
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' ## see README.md
-#' AssignStableCluster(ks_idents_original$k20, ks_idents$`20`)
-#'
-#'ks_stable<- purrr::map2(ks_idents_original, ks_idents, ~AssignStableCluster(ident1= .x, idents = .y))
-#'}
-BootParameterScatterPlot<- function(ks_stable, ks_idents_original){
-        stable_clusters<- purrr::map(ks_stable, "stable_cluster")
-        percent<- purrr::map2_dbl(ks_idents_original, stable_clusters, CalculatePercentCellInStable)
-        stable<- purrr::map_dbl(ks_stable, "number_of_stable_cluster")
-        total<- purrr::map_dbl(ks_stable, function(x) length(x$stable_cluster))
+ParameterSetScatterPlot<- function(stable_clusters,
+                                   fullsample_idents,
+                                   x_var,
+                                   y_var,
+                                   facet_rows,
+                                   facet_cols ) {
 
-        dat<- bind_rows(percent, stable, total) %>%
-                tibble::add_column(parameter = c("percent", "stable_cluster_num", "total_cluster_num")) %>%
-                tidyr::gather(-parameter, key = "bootpar", value= "value" ) %>%
-                dplyr::mutate(bootpar = as.factor(as.numeric(.$bootpar)))
-        g1<- ggplot(dat %>% dplyr::filter(parameter == "percent"), aes(x = bootpar, y = value)) +
-                geom_line(aes(group = parameter, col = parameter)) +
-                scale_y_continuous(labels = scales::percent) +
-                geom_point()
-        g2<- ggplot(dat %>% dplyr::filter(parameter != "percent"), aes(x = bootpar, y = value)) +
-                geom_line(aes(group = parameter, col = parameter, linetype = parameter)) +
-                ylab("number") +
-                geom_point()
-        g<- cowplot::plot_grid(g1, g2, nrow = 2, align = "v")
-        return(g)
+        df<- dplyr::left_join(stable_clusters, fullsample_idents) %>%
+                dplyr::ungroup() %>%
+                dplyr::mutate(total = map_dbl(stable_cluster, ~ length(.x$stable_cluster))) %>%
+                dplyr::mutate(stable = map_dbl(stable_cluster, ~ .x$number_of_stable_cluster)) %>%
+                dplyr::mutate(percentage = map2_dbl(original_ident_full, stable_cluster,
+                                                    function(x, y) CalculatePercentCellInStable(x,                                                                                      y$stable_cluster))) %>%
+                dplyr::select(-data, - stable_cluster, -original_ident_full) %>%
+                dplyr::mutate_if(is.character, function(x) as.factor(as.numeric(x))) %>%
+                tidyr::gather(total:stable , key = "category", value = "number")
+        ## plotting
+
+        if (!all(c(x_var, y_var, facet_rows, facet_cols) %in% colnames(df))) {
+                stop("x_var, faect_rows and facet_cols must be one of the parameter columns in the dataframe,\n
+         y_var must be 'number' or 'percentage'.")
+        }
+
+        if (y_var == "percentage") {
+                p<- ggplot2::ggplot(df, aes(x=.data[[x_var]], y = .data[[y_var]])) +
+                        ggplot2::geom_point(color = "blue") +
+                        ggplot2::geom_line(aes(group = 1), color = "red") +
+                        ggplot2::scale_y_continuous(labels = scales::percent) +
+                        ggplot2::facet_grid(rows = vars(.data[[facet_rows]]), cols = vars(.data[[facet_cols]])) +
+                        ggplot2::xlab(x_var) +
+                        ggplot2::ylab(y_var)
+        }
+        if (y_var == "number"){
+                p<- ggplot2::ggplot(df, aes(x=.data[[x_var]], y = .data[[y_var]])) +
+                        ggplot2::geom_point() +
+                        ggplot2::geom_line(aes(group = category, color = category )) +
+                        ggplot2::facet_grid(rows = vars(.data[[facet_rows]]), cols = vars(.data[[facet_cols]])) +
+                        ggplot2::xlab(x_var) +
+                        ggplot2::ylab(y_var)
+        }
+
+        return(p)
 
 }
 
@@ -239,12 +267,13 @@ ClusterIdentityChordPlot<- function(ident1, ident2,
 #'
 #' SilhouetteRainCloudPlot(CalculateSilhouette(pbmc_small, dims = 1:15))
 SilhouetteRainCloudPlot<- function(silhouette_score){
-                g<- ggplot(silhouette_score, aes(x = cluster, y = width, fill = cluster)) +
+                g<- ggplot2::ggplot(silhouette_score, aes(x = cluster, y = width, fill = cluster)) +
                 geom_flat_violin(position = position_nudge(x = .2, y = 0), alpha = .8) +
-                geom_point(aes(y = width, color = cluster), position = position_jitter(width = .15), size = .5,
+                ggplot2::geom_point(aes(y = width, color = cluster), position = position_jitter(width = .15), size = .5,
                            alpha = 0.8) +
-                geom_boxplot(width = .1, outlier.shape = NA, alpha = 0.5) +
-                theme(legend.position="none") +
-                ggtitle("silhoette width for clusters")
+                ggplot2::geom_boxplot(width = .1, outlier.shape = NA, alpha = 0.5) +
+                ggplot2::ylab("silhouette width") +
+                ggplot2::theme_classic(base_size = 14) +
+                ggplot2::theme(legend.position="none")
                 return(g)
 }

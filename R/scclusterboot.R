@@ -133,29 +133,67 @@ AssignHighestJaccard<- function(idents1, idents2){
 #' @param idents2 A list of cluster identity from the subsampled data sets.
 #' idents2 is a list of the cluster identity from the subsampled data sets after reclustering.
 #' The order of identities in idents1 and idents2 should correspond to each other.
-#' @param method what function to summarize the jaccard index across all simulations.
-#' default is median
-#' @param cutoff Cutoff for assigning stable clusters. A jaccard of 0.4 is used
-#' for default
+#' @param method what way to summarize the jaccard index across all simulations.
+#' to determine a cluster is stable or not. options are "Jaccard_mean", "Jaccard_median" and "Jaccard_percent"
+#' @param jaccard_cutoff Cutoff of the jaccard index to determin a cluster is stable or not.
+#' it is the mean or median cutoff when the method is "jaccard_mean" or "jaccard_median" and it is
+#' the cutoff for every subsampling when the method is "jaccard_percent"
+#' @param percent_cutoff The percentage of jaccard index greater than jaccard_cutoff. Used
+#' when method is "jaccard_percent". specify 0.6 when you mean 60%.
 #'
 #' @return A list containing the raw data for jaccard index for all simulations,
 #' TRUE or FALSE of stable cluster for each cluster and a number of stable clusters.
+#' A cluster is deemed as stable if the median (or mean) jaccard index is > cutoff.
+#' in addtion, a stable_index is calculated, which is the pecentage of jaccard index >
+#' cutoff for all the subsampling. e.g. for 100 times subsampling, 0.8 means 80% of the
+#' time, the jaccard index is > cutoff. Sometimes, we see bimodal distrbution of the
+#' 100 jaccard index, the percentage is a better measurement than the mean or median of the
+#' 100 jaccard index.
 #'
 #' @export
 #'
 #' @examples
 #'
 #' data(idents)
-#' dummy example, all clusters are stable.
+#'
 #' AssignStableCluster(idents, idents)
 #'
-AssignStableCluster<- function(idents1, idents2, method = median, cutoff = 0.6){
+AssignStableCluster<- function(idents1, idents2,
+                               method = "jaccard_median",
+                               jaccard_cutoff = 0.6,
+                               percent_cutoff = 0.6){
         mats<- AssignHighestJaccard(idents1, idents2)
-        stable_cluster<- mats %>% dplyr::summarise_all(method) %>%
-                dplyr::mutate_all(~ifelse(.x > cutoff, T, F)) %>% unlist()
-        number_of_stable_cluster<- sum(stable_cluster)
+
+        stable_index<- (mats > jaccard_cutoff) %>%
+                as.data.frame() %>%
+                dplyr::summarise_all(mean) %>%
+                unlist()
+
+        if (method == "jaccard_mean"){
+                stable_cluster<- mats %>%
+                        dplyr::summarise_all(mean) %>%
+                        dplyr::mutate_all(~ifelse(.x > jaccard_cutoff, TRUE, FALSE)) %>%
+                        unlist()
+                number_of_stable_cluster<- sum(stable_cluster)
+
+        } else if (method == "jaccard_median"){
+                stable_cluster<- mats %>%
+                        dplyr::summarise_all(median) %>%
+                        dplyr::mutate_all(~ifelse(.x > jaccard_cutoff, TRUE, FALSE)) %>%
+                        unlist()
+                number_of_stable_cluster<- sum(stable_cluster)
+        } else if (method == "jaccard_percent"){
+                number_of_stable_cluster<- sum(stable_index > percent_cutoff)
+                stable_cluster<- stable_index > percent_cutoff
+
+        } else {
+                stop("please specify jaccard_mean, jaccard_median or jaccard_percent
+                     for method")
+        }
+
         return(list(jaccardIndex = mats, stable_cluster = stable_cluster,
-                    number_of_stable_cluster = number_of_stable_cluster))
+                    number_of_stable_cluster = number_of_stable_cluster,
+                    stable_index = stable_index))
 }
 
 

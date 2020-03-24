@@ -4,7 +4,8 @@
 \alias{AssignStableCluster}
 \title{Assign stable cluster}
 \usage{
-AssignStableCluster(idents1, idents2, method = median, cutoff = 0.6)
+AssignStableCluster(idents1, idents2, method = "jaccard_median",
+  jaccard_cutoff = 0.6, percent_cutoff = 0.6)
 }
 \arguments{
 \item{idents1}{A list of cluster identity copied from the orginal data sets.
@@ -14,15 +15,25 @@ idents1 is a list of the cluster identity from the subsampled data sets before r
 idents2 is a list of the cluster identity from the subsampled data sets after reclustering.
 The order of identities in idents1 and idents2 should correspond to each other.}
 
-\item{method}{what function to summarize the jaccard index across all simulations.
-default is median}
+\item{method}{what way to summarize the jaccard index across all simulations.
+to determine a cluster is stable or not. options are "Jaccard_mean", "Jaccard_median" and "Jaccard_percent"}
 
-\item{cutoff}{Cutoff for assigning stable clusters. A jaccard of 0.4 is used
-for default}
+\item{jaccard_cutoff}{Cutoff of the jaccard index to determin a cluster is stable or not.
+it is the mean or median cutoff when the method is "jaccard_mean" or "jaccard_median" and it is
+the cutoff for every subsampling when the method is "jaccard_percent"}
+
+\item{percent_cutoff}{The percentage of jaccard index greater than jaccard_cutoff. Used
+when method is "jaccard_percent". specify 0.6 when you mean 60%.}
 }
 \value{
 A list containing the raw data for jaccard index for all simulations,
 TRUE or FALSE of stable cluster for each cluster and a number of stable clusters.
+A cluster is deemed as stable if the median (or mean) jaccard index is > cutoff.
+in addtion, a stable_index is calculated, which is the pecentage of jaccard index >
+cutoff for all the subsampling. e.g. for 100 times subsampling, 0.8 means 80% of the
+time, the jaccard index is > cutoff. Sometimes, we see bimodal distrbution of the
+100 jaccard index, the percentage is a better measurement than the mean or median of the
+100 jaccard index.
 }
 \description{
 Assign stable cluster
@@ -30,7 +41,7 @@ Assign stable cluster
 \examples{
 
 data(idents)
-dummy example, all clusters are stable.
+
 AssignStableCluster(idents, idents)
 
 }
