@@ -119,10 +119,10 @@ Examples to use the `scclusteval` package can be found at https://crazyhottommy.
 
 ## Acknowledgements
 
-Thanks to Tim Sackton and Catherin Dulac for their supervision and support.  
+Thanks to Tim Sackton and Catherine Dulac for their supervision and support.  
 Thanks to Yasin Kaymaz in Sackton group for fruitful discussion.  
 Thanks to Stephen Eichhorn in Xiaowei Zhuang lab for the idea and sharing the python code working on [Scanpy](https://github.com/theislab/scanpy) object.  
-Thanks to Sophia(Zhengzheng) Liang and Brandon Logeman in Dulac lab for sharing data and giving feedbacks.
+Thanks to Sophia(Zhengzheng) Liang and Brandon Logeman in Dulac lab for sharing data and giving feedbacks.  
 Thanks [David Robinson](https://twitter.com/drob)'s `geomflatviolin` function which was used in the `raincloudplot`.
 
 ## Why this package?
