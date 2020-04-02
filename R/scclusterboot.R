@@ -36,12 +36,11 @@ JaccardSets<- function(set1, set2){
 PairWiseJaccardSets<- function(ident1, ident2){
         ident1.list<- split(names(ident1), ident1)
         ident2.list<- split(names(ident2), ident2)
-        res<- c()
+        res<- matrix(nrow = length(ident1.list), ncol = length(ident2.list),
+                     dimnames = list(names(ident1.list), names(ident2.list)))
         for (i in seq_along(ident1.list)){
-                ind<- purrr::map_dbl(ident2.list, ~JaccardSets(ident1.list[[i]], .x))
-                res<- rbind(res, ind)
+                res[i, ]<- purrr::map_dbl(ident2.list, ~JaccardSets(ident1.list[[i]], .x))
         }
-        rownames(res)<- names(ident1.list)
         return(res)
 }
 
