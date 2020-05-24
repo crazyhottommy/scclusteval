@@ -73,6 +73,10 @@ data set in a stable cluster.
 
 We can repeat the 1-4 for different resolution and number of PCs and the combination of all different parameters.
 
+The workflow is:
+
+![](man/figures/workflow.png)
+
 ## The subsampling process is implemented in a Snakemake workflow
 
 Because for each subsampling, one has to re-run the whole process of `FindVariableGenes`,
@@ -86,7 +90,9 @@ Snakemake will take advantage of the HPC cluster with large number of CPUs avaia
 
 The R package works with the output from the Snakemake workflow: [pyflow_seuratv3_parameter](https://github.com/crazyhottommy/pyflow_seuratv3_parameter).
 
-## Installation
+## The scclusteval R package is for downstream analysis
+
+### Installation
 
 You can install the scclusteval from github:  
 

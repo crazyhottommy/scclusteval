@@ -70,6 +70,10 @@ To assess which k is best to use by subsampling the original data:
 We can repeat the 1-4 for different resolution and number of PCs and the
 combination of all different parameters.
 
+The workflow is:
+
+![](man/figures/workflow.png)
+
 ## The subsampling process is implemented in a Snakemake workflow
 
 Because for each subsampling, one has to re-run the whole process of
@@ -86,7 +90,9 @@ CPUs avaiable.
 The R package works with the output from the Snakemake workflow:
 [pyflow\_seuratv3\_parameter](https://github.com/crazyhottommy/pyflow_seuratv3_parameter).
 
-## Installation
+## The scclusteval R package is for downstream analysis
+
+### Installation
 
 You can install the scclusteval from github:
 
