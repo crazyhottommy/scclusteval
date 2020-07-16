@@ -21,5 +21,7 @@ is the cluster ids from ident2.
 Match two run of cluster ids with highest Jaccard index
 }
 \examples{
+ \dontrun{
  MatchClusters(pbmc@ident, pbmc_small@ident)
+ }
 }

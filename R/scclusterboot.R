@@ -30,8 +30,9 @@ JaccardSets<- function(set1, set2){
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' PairWiseJaccardSets(pbmc@@ident, pbmc_small@@ident)
-#'
+#'}
 #'
 PairWiseJaccardSets<- function(ident1, ident2){
         ident1.list<- split(names(ident1), ident1)
@@ -58,7 +59,9 @@ PairWiseJaccardSets<- function(ident1, ident2){
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' PairWiseOverlappingIdents(pbmc@@ident, pbmc_small@@ident)
+#' }
 PairWiseOverlappingIdents<- function(ident1, ident2){
         ident1.list<- split(names(ident1), ident1)
         ident2.list<- split(names(ident2), ident2)
@@ -85,7 +88,9 @@ PairWiseOverlappingIdents<- function(ident1, ident2){
 #' @export
 #'
 #' @examples
+#'  \dontrun{
 #'  MatchClusters(pbmc@@ident, pbmc_small@@ident)
+#'  }
 MatchClusters<- function(ident1, ident2){
         jaccard_mat<- PairWiseJaccardSets(ident1, ident2)
 

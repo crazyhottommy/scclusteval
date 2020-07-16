@@ -22,6 +22,6 @@ Make a Barplot for cluster size
 }
 \examples{
 data(pbmc_small)
-CLusterSizeBarplot(pbmc_small@ident)
+ClusterSizeBarplot(Idents(pbmc_small))
 
 }

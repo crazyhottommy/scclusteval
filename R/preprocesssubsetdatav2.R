@@ -29,9 +29,11 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' pbmc_small_subset<- RandomSubsetData(pbmc_small, 0.8)
 #' pbmc_small_subset_processed<- PreprocessSubsetData(pbmc_small_subset)
-#' pbmc_small_subset_processed@meta.data
+#' pbmc_small_subset_processed@@meta.data
+#' }
 
 
 PreprocessSubsetDataV2<- function(object,

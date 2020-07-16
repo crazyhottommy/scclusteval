@@ -61,7 +61,9 @@ supposed to be fully processed as well. So the NormalizeData step is not
 necessary.
 }
 \examples{
+\dontrun{
 pbmc_small_subset<- RandomSubsetData(pbmc_small, 0.8)
 pbmc_small_subset_processed<- PreprocessSubsetData(pbmc_small_subset)
 pbmc_small_subset_processed@meta.data
+}
 }

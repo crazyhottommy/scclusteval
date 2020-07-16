@@ -11,19 +11,19 @@
 #'
 #' @examples
 #' data(pbmc_small)
-#' CLusterSizeBarplot(pbmc_small@@ident)
+#' ClusterSizeBarplot(Idents(pbmc_small))
 #'
 ClusterSizeBarplot<- function(ident, bar_col = "blue", label_number = TRUE){
         g<- as.data.frame(table(ident)) %>%
                 dplyr::rename(cluster = ident, size = Freq) %>%
-                ggplot2::ggplot(aes(x = cluster, y = size)) +
+                ggplot2::ggplot(ggplot2::aes(x = cluster, y = size)) +
                 ggplot2::geom_bar(stat = "identity", fill = bar_col) +
-                ggplot2::theme(axis.text.x = element_text(angle = 45, hjust = 1))
+                ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
         if (!label_number){
                 return (g)
 
         } else {
-                g<- g + ggplot2::geom_text(aes(label=size), vjust= -1.5, angle = 45)
+                g<- g + ggplot2::geom_text(ggplot2::aes(label=size), vjust= -1.5, angle = 45)
                 return (g)
 
         }
@@ -128,9 +128,9 @@ JaccardRainCloudPlot<- function(idents1, idents2, title= NULL){
         g<- mats %>% tibble::as_tibble() %>% tibble::rownames_to_column(var = "bootstrap")  %>%
                 tidyr::gather(-bootstrap, key= "cluster", value = "jaccard") %>%
                 dplyr::mutate(cluster = as.factor(as.numeric(.$cluster))) %>%
-                ggplot2::ggplot(aes(x = cluster, y = jaccard, fill = cluster)) +
+                ggplot2::ggplot(ggplot2::aes(x = cluster, y = jaccard, fill = cluster)) +
                 geom_flat_violin(position = position_nudge(x = .2, y = 0), alpha = .8) +
-                ggplot2::geom_point(aes(y = jaccard, color = cluster), position = position_jitter(width = .15), size = .5, alpha = 0.8) +
+                ggplot2::geom_point(ggplot2::aes(y = jaccard, color = cluster), position = position_jitter(width = .15), size = .5, alpha = 0.8) +
                 ggplot2::geom_boxplot(width = .1, outlier.shape = NA, alpha = 0.5) +
                 ggplot2::theme_classic() +
                 ggplot2::theme(legend.position="none") +
@@ -184,18 +184,18 @@ ParameterSetScatterPlot<- function(stable_clusters,
         }
 
         if (y_var == "percentage") {
-                p<- ggplot2::ggplot(df, aes(x=.data[[x_var]], y = .data[[y_var]])) +
+                p<- ggplot2::ggplot(df, ggplot2::aes(x=.data[[x_var]], y = .data[[y_var]])) +
                         ggplot2::geom_point(color = "blue") +
-                        ggplot2::geom_line(aes(group = 1), color = "red") +
+                        ggplot2::geom_line(ggplot2::aes(group = 1), color = "red") +
                         ggplot2::scale_y_continuous(labels = scales::percent) +
                         ggplot2::facet_grid(rows = vars(.data[[facet_rows]]), cols = vars(.data[[facet_cols]])) +
                         ggplot2::xlab(x_var) +
                         ggplot2::ylab(y_var)
         }
         if (y_var == "number"){
-                p<- ggplot2::ggplot(df, aes(x=.data[[x_var]], y = .data[[y_var]])) +
+                p<- ggplot2::ggplot(df, ggplot2::aes(x=.data[[x_var]], y = .data[[y_var]])) +
                         ggplot2::geom_point() +
-                        ggplot2::geom_line(aes(group = category, color = category )) +
+                        ggplot2::geom_line(ggplot2::aes(group = category, color = category )) +
                         ggplot2::facet_grid(rows = vars(.data[[facet_rows]]), cols = vars(.data[[facet_cols]])) +
                         ggplot2::xlab(x_var) +
                         ggplot2::ylab(y_var)
@@ -267,9 +267,9 @@ ClusterIdentityChordPlot<- function(ident1, ident2,
 #'
 #' SilhouetteRainCloudPlot(CalculateSilhouette(pbmc_small, dims = 1:15))
 SilhouetteRainCloudPlot<- function(silhouette_score){
-                g<- ggplot2::ggplot(silhouette_score, aes(x = cluster, y = width, fill = cluster)) +
-                geom_flat_violin(position = position_nudge(x = .2, y = 0), alpha = .8) +
-                ggplot2::geom_point(aes(y = width, color = cluster), position = position_jitter(width = .15), size = .5,
+                g<- ggplot2::ggplot(silhouette_score, ggplot2::aes(x = cluster, y = width, fill = cluster)) +
+                geom_flat_violin(position = ggplot2::position_nudge(x = .2, y = 0), alpha = .8) +
+                ggplot2::geom_point(ggplot2::aes(y = width, color = cluster), position = ggplot2::position_jitter(width = .15), size = .5,
                            alpha = 0.8) +
                 ggplot2::geom_boxplot(width = .1, outlier.shape = NA, alpha = 0.5) +
                 ggplot2::ylab("silhouette width") +

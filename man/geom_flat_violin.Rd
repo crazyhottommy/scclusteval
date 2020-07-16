@@ -37,7 +37,7 @@ geom_flat_violin(
 A Flat Violin plot
 }
 \examples{
-
+library(ggplot2)
 ggplot(diamonds, aes(cut, carat)) +
 geom_flat_violin() +
 coord_flip()

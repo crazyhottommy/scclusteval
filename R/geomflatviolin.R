@@ -24,7 +24,7 @@
 #' @export
 #'
 #' @examples
-#'
+#' library(ggplot2)
 #' ggplot(diamonds, aes(cut, carat)) +
 #' geom_flat_violin() +
 #' coord_flip()
@@ -32,7 +32,7 @@
 geom_flat_violin <- function(mapping = NULL, data = NULL, stat = "ydensity",
                              position = "dodge", trim = TRUE, scale = "area",
                              show.legend = NA, inherit.aes = TRUE, ...) {
-        layer(
+        ggplot2::layer(
                 data = data,
                 mapping = mapping,
                 stat = stat,
@@ -53,7 +53,7 @@ GeomFlatViolin <-
         ggplot2::ggproto("GeomFlatViolin", ggplot2::Geom,
                 setup_data = function(data, params) {
                         data$width <- data$width %||%
-                                params$width %||% (resolution(data$x, FALSE) * 0.9)
+                                params$width %||% (ggplot2::resolution(data$x, FALSE) * 0.9)
 
                         # ymin, ymax, xmin, and xmax define the bounding rectangle for each group
                         data %>%
@@ -78,7 +78,7 @@ GeomFlatViolin <-
                         # Needed for coord_polar and such
                         newdata <- rbind(newdata, newdata[1,])
 
-                        ggplot2:::ggname("geom_flat_violin", GeomPolygon$draw_panel(newdata, panel_scales, coord))
+                        ggplot2:::ggname("geom_flat_violin", ggplot2::GeomPolygon$draw_panel(newdata, panel_scales, coord))
                 },
 
                 draw_key = ggplot2::draw_key_polygon,

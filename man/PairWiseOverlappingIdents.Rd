@@ -21,5 +21,7 @@ Calculate pair-wise overlapping cluster identities for two named factor vector. 
 seurat_obj1@ident and seurat_obj2@ident
 }
 \examples{
+\dontrun{
 PairWiseOverlappingIdents(pbmc@ident, pbmc_small@ident)
+}
 }

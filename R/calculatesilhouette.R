@@ -22,6 +22,6 @@ CalculateSilhouette<- function(object, dims = 1:50){
         silhouette_score<- tibble::tibble(cluster = silhouette_score[,1],
                                           width = silhouette_score[,3],
                                           cell = colnames(object)) %>%
-                mutate(cluster = as.factor(cluster))
+                dplyr::mutate(cluster = as.factor(cluster))
         return(silhouette_score)
 }
