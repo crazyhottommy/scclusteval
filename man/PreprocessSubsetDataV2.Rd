@@ -4,10 +4,20 @@
 \alias{PreprocessSubsetDataV2}
 \title{A wrapper for preprocessing subsetted Seurat object using ScaleData}
 \usage{
-PreprocessSubsetDataV2(object, nfeatures = 2000, num.pc = 20,
-  pc.use = NULL, workers = 2, score.thresh = 1e-05,
-  sig.pc.thresh = 0.05, n.start = 100, nn.eps = 0,
-  resolution = 0.8, k.param = 30, ...)
+PreprocessSubsetDataV2(
+  object,
+  nfeatures = 2000,
+  num.pc = 20,
+  pc.use = NULL,
+  workers = 2,
+  score.thresh = 1e-05,
+  sig.pc.thresh = 0.05,
+  n.start = 100,
+  nn.eps = 0,
+  resolution = 0.8,
+  k.param = 30,
+  ...
+)
 }
 \arguments{
 \item{object}{A subsetted Seurat object created by RandomSubsetData}

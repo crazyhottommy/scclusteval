@@ -1,9 +1,22 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+[![Build
+Status](https://travis-ci.com/crazyhottommy/scclusteval.svg?branch=master)](https://travis-ci.com/crazyhottommy/scclusteval)
+
 # scclusteval
 
-<img src="man/figures/scclusteval.png" title="hex sticker" alt="hex sticker" width="10%" height="60%" />
+<div class="figure">
+
+<img src="man/figures/scclusteval.png" alt="hex sticker" width="10%" height="60%" />
+
+<p class="caption">
+
+hex sticker
+
+</p>
+
+</div>
 
 The goal of scclusteval(Single Cell Cluster Evaluation) is to evaluate
 the single cell clustering stability by subsampling the cells and
@@ -105,7 +118,6 @@ devtools::install_github("crazyhottommy/scclusteval")
 ``` r
 library(scclusteval)
 #> Loading required package: Seurat
-#> Warning: package 'Seurat' was built under R version 3.5.2
 ?RandomSubsetData
 ?MergeMultipleSeuratObjects
 ?PreprocessSubsetData

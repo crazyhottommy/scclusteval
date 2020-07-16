@@ -4,8 +4,14 @@
 \alias{ParameterSetScatterPlot}
 \title{Plot a scatter plot for different clustering parameters}
 \usage{
-ParameterSetScatterPlot(stable_clusters, fullsample_idents, x_var, y_var,
-  facet_rows, facet_cols)
+ParameterSetScatterPlot(
+  stable_clusters,
+  fullsample_idents,
+  x_var,
+  y_var,
+  facet_rows,
+  facet_cols
+)
 }
 \arguments{
 \item{stable_clusters}{a dataframe with list-columns for data, stable_cluster determined by

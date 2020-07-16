@@ -4,7 +4,9 @@
 \name{idents}
 \alias{idents}
 \title{cluster identity of subsetted pbmc data}
-\format{A list of factors}
+\format{
+A list of factors
+}
 \source{
 \url{https://s3-us-west-2.amazonaws.com/10x.files/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz}
 }

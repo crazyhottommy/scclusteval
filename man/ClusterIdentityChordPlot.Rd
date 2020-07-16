@@ -4,9 +4,17 @@
 \alias{ClusterIdentityChordPlot}
 \title{Plot ChordDiagram of cell identity changes between two runs of clusters.}
 \usage{
-ClusterIdentityChordPlot(ident1, ident2, clusters_to_show_ident1 = NULL,
-  big.gap = 10, transparency = 0.5, grid.col = NULL,
-  link.sort = TRUE, link.decreasing = TRUE, directional = -1)
+ClusterIdentityChordPlot(
+  ident1,
+  ident2,
+  clusters_to_show_ident1 = NULL,
+  big.gap = 10,
+  transparency = 0.5,
+  grid.col = NULL,
+  link.sort = TRUE,
+  link.decreasing = TRUE,
+  directional = -1
+)
 }
 \arguments{
 \item{ident1}{a named factor vector. names are the cell names, the values are

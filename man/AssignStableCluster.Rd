@@ -4,8 +4,13 @@
 \alias{AssignStableCluster}
 \title{Assign stable cluster}
 \usage{
-AssignStableCluster(idents1, idents2, method = "jaccard_median",
-  jaccard_cutoff = 0.6, percent_cutoff = 0.6)
+AssignStableCluster(
+  idents1,
+  idents2,
+  method = "jaccard_median",
+  jaccard_cutoff = 0.6,
+  percent_cutoff = 0.6
+)
 }
 \arguments{
 \item{idents1}{A list of cluster identity copied from the orginal data sets.
@@ -23,14 +28,14 @@ it is the mean or median cutoff when the method is "jaccard_mean" or "jaccard_me
 the cutoff for every subsampling when the method is "jaccard_percent"}
 
 \item{percent_cutoff}{The percentage of jaccard index greater than jaccard_cutoff. Used
-when method is "jaccard_percent". specify 0.6 when you mean 60%.}
+when method is "jaccard_percent". specify 0.6 when you mean 60\%.}
 }
 \value{
 A list containing the raw data for jaccard index for all simulations,
 TRUE or FALSE of stable cluster for each cluster and a number of stable clusters.
 A cluster is deemed as stable if the median (or mean) jaccard index is > cutoff.
 in addtion, a stable_index is calculated, which is the pecentage of jaccard index >
-cutoff for all the subsampling. e.g. for 100 times subsampling, 0.8 means 80% of the
+cutoff for all the subsampling. e.g. for 100 times subsampling, 0.8 means 80\% of the
 time, the jaccard index is > cutoff. Sometimes, we see bimodal distrbution of the
 100 jaccard index, the percentage is a better measurement than the mean or median of the
 100 jaccard index.
