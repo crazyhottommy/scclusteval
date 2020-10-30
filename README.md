@@ -26,6 +26,13 @@ For Theory behind the method, see Christian Henning, “Cluster-wise
 assessment of cluster stability,” Research Report 271, Dept. of
 Statistical Science, University College London, December 2006)
 
+### Citation
+
+Ming Tang, Yasin Kaymaz,Brandon L. Logeman, Stephen Eichhorn, Zhengzheng
+S. Liang, Catherine Dulac and Timothy B. Sackton. Evaluating single-cell
+cluster stability using the Jaccard similarity index (2020)
+*Bioinformatics* In Press.
+
 ### Parameters that affect the clustering
 
 The most popular clustering method for single cell RNAseq is shared
