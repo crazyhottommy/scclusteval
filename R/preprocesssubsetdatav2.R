@@ -48,6 +48,13 @@ PreprocessSubsetDataV2<- function(object,
                                 resolution = 0.8,
                                 k.param = 30,
                                 ...){
+        
+        if(!is.null(pc.use)){
+                if(pc.use > num.pc){
+                        stop("Specify the maximum pc.use number as less than or equal to the total num.pc")
+                }
+        }
+        
         meta.data.colnames<- object@meta.data %>% colnames()
         vars.to.regress<- c("percent.mt","nFeature_RNA")
         # in case the seurat object does not have percent.mito in metadata
@@ -60,14 +67,20 @@ PreprocessSubsetDataV2<- function(object,
                         npcs = num.pc)
 
         if (is.null(pc.use)){
-                object<- JackStraw( object = object, num.replicate = 100, dims = num.pc)
-
-                object <- ScoreJackStraw(object = object, dims = 1:num.pc, score.thresh = score.thresh)
-
-                PC_pvalues<- object@reductions$pca@jackstraw@overall.p.values
-
-                ## determin how many PCs to use.
-                pc.use<- min(which(PC_pvalues[,"Score"] > sig.pc.thresh)) -1
+                
+                if("SCT"%in%names(SObjFiltered@assays)){
+                        pc.use <- num.pc
+                        message("The SCTransform assay was detected in the object, and the Jackstraw procedure for determining which PCs to use is not compatable with this procedure. Since pc.use was not specified it is being automatically set to num.pc")  
+                }else{
+                        object<- JackStraw( object = object, num.replicate = 100, dims = num.pc)
+                        
+                        object <- ScoreJackStraw(object = object, dims = 1:num.pc, score.thresh = score.thresh)
+                        
+                        PC_pvalues<- object@reductions$pca@jackstraw@overall.p.values
+                        
+                        ## determine how many PCs to use.
+                        pc.use<- min(which(PC_pvalues[,"Score"] > sig.pc.thresh)) -1  
+                }
 
         }
 
