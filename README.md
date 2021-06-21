@@ -36,7 +36,8 @@ cluster stability using the Jaccard similarity index (2020)
 ### Parameters that affect the clustering
 
 The most popular clustering method for single cell RNAseq is shared
-nearest neighbor (SNN) which is implemented in `{Seurat::FindClusters}`.
+nearest neighbor (SNN) followed by Louvain community detection algorithm 
+which is implemented in `{Seurat::FindClusters}`.
 See a paper by Mark Robinson group for comparing single cell RNAseq
 clustering methods:[A systematic performance evaluation of clustering
 methods for single-cell RNA-seq
