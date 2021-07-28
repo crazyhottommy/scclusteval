@@ -31,7 +31,7 @@ Statistical Science, University College London, December 2006)
 Ming Tang, Yasin Kaymaz,Brandon L. Logeman, Stephen Eichhorn, Zhengzheng
 S. Liang, Catherine Dulac and Timothy B. Sackton. Evaluating single-cell
 cluster stability using the Jaccard similarity index (2020)
-*Bioinformatics* In Press.
+*Bioinformatics*  btaa956, https://doi.org/10.1093/bioinformatics/btaa956.
 
 ### Parameters that affect the clustering
 
